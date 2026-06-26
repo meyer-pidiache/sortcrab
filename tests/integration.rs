@@ -20,13 +20,10 @@ fn current_semester() -> String {
 }
 
 fn sortcrab_binary() -> PathBuf {
-    let binary = Path::new(env!("CARGO_MANIFEST_DIR")).join("target/debug/sortcrab");
-    assert!(
-        binary.exists(),
-        "sortcrab binary not found at {}. Run `cargo build` first.",
-        binary.display()
-    );
-    binary
+    // CARGO_BIN_EXE_<name> is set by Cargo during test compilation and
+    // points to the correct binary regardless of --target-dir (works
+    // with cargo llvm-cov, cargo nextest, etc.).
+    PathBuf::from(env!("CARGO_BIN_EXE_sortcrab"))
 }
 
 // ── Full pipeline: multiple file types → correct category/subcategory/semester ──
@@ -248,6 +245,7 @@ fn test_init_command() {
     let output = std::process::Command::new(&binary)
         .arg("init")
         .env("HOME", tmp_home.path())
+        .env_remove("XDG_CONFIG_HOME")
         .output()
         .expect("failed to run sortcrab init");
 
