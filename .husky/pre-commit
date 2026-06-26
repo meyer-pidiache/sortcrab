@@ -1,0 +1,6 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+cargo fmt --all --check
+cargo clippy --all-targets -- -D warnings
+cargo nextest run

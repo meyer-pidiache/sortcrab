@@ -1,0 +1,3 @@
+YAML Validation Result: VALID
+File: .github/workflows/release.yml
+Method: python3 -c "import yaml; yaml.safe_load(open('.github/workflows/release.yml'))"
