@@ -9,9 +9,15 @@ use crate::error::SortcrabError;
 /// Organizes files into categorized, semester-dated folders.
 #[derive(Parser, Debug)]
 #[command(name = "sortcrab", author, version, about, long_about = None)]
+#[command(args_conflicts_with_subcommands = true)]
 pub struct Cli {
-    #[command(subcommand)]
-    pub command: Commands,
+    /// Source directory to scan for files
+    #[arg(short, long, default_value = "~/Downloads")]
+    pub source: PathBuf,
+
+    /// Target directory for sorted output (defaults to the source directory for in-place organization)
+    #[arg(short, long)]
+    pub target: Option<PathBuf>,
 
     /// Enable verbose logging (debug level)
     #[arg(global = true, short, long)]
@@ -20,27 +26,26 @@ pub struct Cli {
     /// Suppress all output except errors
     #[arg(global = true, short = 'q', long)]
     pub quiet: bool,
+
+    #[command(subcommand)]
+    pub command: Option<Commands>,
 }
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    /// Sort files from a source directory into categorized, semester-dated folders
-    Sort(SortArgs),
     /// Create a default configuration file
     Init,
     /// View or edit the configuration
     Config(ConfigArgs),
 }
 
-/// Arguments for the `sort` subcommand.
+/// Arguments for the sort operation.
 #[derive(Parser, Debug)]
 pub struct SortArgs {
     /// Source directory to scan for files
-    #[arg(short, long, default_value = "~/Downloads")]
     pub source: PathBuf,
 
     /// Target directory for sorted output (defaults to the source directory for in-place organization)
-    #[arg(short, long)]
     pub target: Option<PathBuf>,
 }
 
@@ -63,9 +68,16 @@ pub fn run(cli: Cli) -> Result<(), SortcrabError> {
     crate::init_logging(cli.verbose, cli.quiet);
 
     match cli.command {
-        Commands::Sort(args) => handle_sort(args),
-        Commands::Init => handle_init(),
-        Commands::Config(args) => handle_config(args),
+        None => {
+            // Default: run sort
+            let args = SortArgs {
+                source: cli.source,
+                target: cli.target,
+            };
+            handle_sort(args)
+        }
+        Some(Commands::Init) => handle_init(),
+        Some(Commands::Config(args)) => handle_config(args),
     }
 }
 
