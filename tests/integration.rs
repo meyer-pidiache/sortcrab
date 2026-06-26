@@ -249,11 +249,37 @@ fn test_init_command() {
         .output()
         .expect("failed to run sortcrab init");
 
-    assert!(output.status.success(), "sortcrab init should exit 0");
+    assert!(
+        output.status.success(),
+        "sortcrab init should exit 0; stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 
-    // Config should exist under temp HOME
-    let config_path = tmp_home.path().join(".config/sortcrab/config.toml");
-    assert!(config_path.exists(), "config file should exist after init");
+    // Parse the config path from init's output (last non‑empty line).
+    // tracing info lines may also appear on stdout, so we can't just
+    // strip_prefix from the head.
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let config_path = stdout
+        .lines()
+        .rfind(|l| !l.is_empty())
+        .and_then(|line| {
+            line.trim()
+                .strip_prefix("Created default configuration at ")
+                .and_then(|s| {
+                    let trimmed = s.trim().trim_matches('"');
+                    if trimmed.is_empty() {
+                        None
+                    } else {
+                        Some(PathBuf::from(trimmed))
+                    }
+                })
+        })
+        .expect("init should print 'Created default configuration at ...'");
+
+    assert!(
+        config_path.exists(),
+        "config file should exist after init at {config_path:?}"
+    );
 
     // Verify the config is valid TOML with rules
     let content = std::fs::read_to_string(&config_path).unwrap();
