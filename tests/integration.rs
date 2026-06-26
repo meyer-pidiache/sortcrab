@@ -149,17 +149,25 @@ fn test_sort_all_skip_conditions() {
     let rules = RulesConfig::default();
     let report = sort_files(src.path(), tgt.path(), &rules).unwrap();
 
-    assert_eq!(report.total, 3);
-    // Only visible.pdf is moved
-    assert_eq!(report.moved, 1);
-    // .hidden.txt + link.pdf = 2 skipped
-    assert_eq!(report.skipped, 2);
+    #[cfg(unix)]
+    {
+        assert_eq!(report.total, 3, "dotfile + visible.pdf + link.pdf");
+        assert_eq!(report.moved, 1);
+        assert_eq!(report.skipped, 2, "dotfile + symlink skipped");
+    }
+    #[cfg(not(unix))]
+    {
+        assert_eq!(report.total, 2, "no symlink on this platform");
+        assert_eq!(report.moved, 1);
+        assert_eq!(report.skipped, 1, "only dotfile skipped");
+    }
     assert_eq!(report.errors, 0);
 
     // Dotfile stays untouched
     assert!(src.path().join(".hidden.txt").exists());
     // Symlink stays untouched (use is_symlink, not exists — dangling symlink
     // returns false for exists())
+    #[cfg(unix)]
     assert!(src.path().join("link.pdf").is_symlink());
     // Real file was moved
     assert!(!src.path().join("visible.pdf").exists());
