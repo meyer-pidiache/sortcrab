@@ -19,7 +19,7 @@ Download the latest tarball for your platform from
 [GitHub Releases](https://github.com/meyer-pidiache/sortcrab/releases/latest),
 then extract and place `sortcrab` in your `$PATH`.
 
-**Option 3 — Cargo** (once published to crates.io)
+**Option 3 — Cargo**
 ```bash
 cargo install sortcrab
 ```
