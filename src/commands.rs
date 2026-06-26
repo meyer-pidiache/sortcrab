@@ -127,23 +127,45 @@ pub fn sort_files(
     Ok(report)
 }
 
+/// Expand a leading tilde `~` in a path to the user's home directory.
+///
+/// This is needed because clap's `default_value = "~"` does not go through
+/// shell expansion — the literal tilde must be resolved programmatically.
+fn resolve_home(path: &Path) -> PathBuf {
+    let s = path.to_string_lossy();
+    if s.starts_with("~") {
+        if let Ok(home) = std::env::var("HOME") {
+            let after = s[1..].trim_start_matches('/');
+            if after.is_empty() {
+                PathBuf::from(home)
+            } else {
+                PathBuf::from(home).join(after)
+            }
+        } else {
+            path.to_path_buf()
+        }
+    } else {
+        path.to_path_buf()
+    }
+}
+
 /// Execute the `sort` subcommand.
 ///
-/// Resolves the target directory (defaulting to `{source}/sorted`), loads the
-/// rules configuration, calls [`sort_files`], and prints a human-readable
-/// summary.
+/// Resolves the target directory (defaulting to the source directory for
+/// in-place organization), loads the rules configuration, calls [`sort_files`],
+/// and prints a human-readable summary.
 pub fn execute_sort(args: &SortArgs) -> Result<(), SortcrabError> {
-    let source = &args.source;
+    let source = resolve_home(&args.source);
     let target: PathBuf = args
         .target
         .clone()
-        .unwrap_or_else(|| args.source.join("sorted"));
+        .unwrap_or_else(|| source.clone());
 
     tracing::debug!("Sort source: {:?}, target: {:?}", source, target);
 
     let rules = RulesConfig::default();
 
-    let report = sort_files(source, &target, &rules)?;
+    let report = sort_files(&source, &target, &rules)?;
 
     println!(
         "Sorted {} files, skipped {}, {} errors",

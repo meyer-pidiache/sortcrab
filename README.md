@@ -11,11 +11,14 @@ it into a structured destination tree: `{category}/{subcategory}/{semester}/{fil
 # Install
 cargo install sortcrab
 
-# Sort the current directory
+# Sort your Downloads folder in-place (default)
 sortcrab sort
 
-# Sort your Downloads folder into a target directory
-sortcrab sort --source ~/Downloads --target ~/Downloads/sorted
+# Sort another folder in-place
+sortcrab sort --source ~/Documents
+
+# Sort to a different target directory
+sortcrab sort --source ~/Downloads --target ~/Other
 
 # Initialize default configuration
 sortcrab init
@@ -28,8 +31,9 @@ sortcrab config --show
 
 | Command | Description |
 |---------|-------------|
-| `sortcrab sort` | Sort files from a source directory. Defaults to the current directory. |
-| `sortcrab sort --source ~/Downloads --target ~/Downloads/sorted` | Sort Downloads into a dedicated folder. |
+| `sortcrab sort` | Sort your Downloads folder in-place (default). |
+| `sortcrab sort -s ~/Documents` | Sort another folder in-place. |
+| `sortcrab sort -s ~/Downloads -t ~/Other` | Sort to a dedicated target directory instead of in-place. |
 | `sortcrab init` | Create the default configuration file at `~/.config/sortcrab/config.toml`. |
 | `sortcrab config --show` | Print the current configuration to stdout. |
 | `sortcrab config --edit` | Open the configuration file in `$EDITOR` (falls back to `vi`). |
