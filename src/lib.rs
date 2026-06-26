@@ -1,5 +1,7 @@
 // sortcrab — library root
 
+use clap::Parser;
+
 pub mod cli;
 pub mod commands;
 pub mod config;
@@ -37,16 +39,7 @@ pub fn init_logging(verbose: bool, quiet: bool) {
 
 /// Entry point for the sortcrab CLI.
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
-    unimplemented!()
+    let cli = cli::Cli::parse();
+    cli::run(cli).map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-}
