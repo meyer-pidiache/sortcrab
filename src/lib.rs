@@ -1,6 +1,7 @@
 // sortcrab — library root
 
 pub mod cli;
+pub mod commands;
 pub mod config;
 pub mod rules;
 pub mod classify;

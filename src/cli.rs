@@ -3,6 +3,7 @@
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
+use crate::config::ConfigManager;
 use crate::error::SortcrabError;
 
 /// Organizes files into categorized, semester-dated folders.
@@ -69,20 +70,25 @@ pub fn run(cli: Cli) -> Result<(), SortcrabError> {
 }
 
 fn handle_sort(args: SortArgs) -> Result<(), SortcrabError> {
-    let _target = args.target.unwrap_or_else(|| args.source.join("sorted"));
-    tracing::debug!("Sort source: {:?}, target: {:?}", args.source, _target);
-    // TODO: implement sort logic
-    Ok(())
+    crate::commands::execute_sort(&args)
 }
 
 fn handle_init() -> Result<(), SortcrabError> {
     tracing::debug!("Initializing default configuration");
-    // TODO: implement init logic
+    ConfigManager::create_default()?;
+    println!(
+        "Created default configuration at {:?}",
+        ConfigManager::config_path()?
+    );
     Ok(())
 }
 
 fn handle_config(args: ConfigArgs) -> Result<(), SortcrabError> {
     tracing::debug!("Config show={}, edit={}", args.show, args.edit);
-    // TODO: implement config logic
+    if args.show {
+        ConfigManager::print()?;
+    } else if args.edit {
+        ConfigManager::edit()?;
+    }
     Ok(())
 }
