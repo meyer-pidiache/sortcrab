@@ -158,7 +158,11 @@ mod tests {
     }
 
     #[test]
+    #[cfg(target_os = "linux")]
     fn test_config_dir_ends_with_sortcrab() {
+        // On Linux the config dir is `~/.config/sortcrab/`, which ends
+        // with `sortcrab`.  macOS uses `com.sortcrab` and Windows uses
+        // `sortcrab\config`, so this assertion is Linux-only.
         let path = ConfigManager::config_dir().unwrap();
         assert!(path.ends_with("sortcrab"));
     }

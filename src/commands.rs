@@ -347,16 +347,22 @@ mod tests {
         let rules = RulesConfig::default();
         let report = sort_files(src.path(), tgt.path(), &rules).unwrap();
 
-        // Both entries are counted (neither is a directory), but the symlink
-        // is rejected by move_file.
-        assert_eq!(report.total, 2, "should count both real.pdf and link.pdf");
-        assert_eq!(
-            report.moved, 1,
-            "real.pdf should be moved (got {}); skipped={}, errors={}",
-            report.moved, report.skipped, report.errors
-        );
-        assert_eq!(report.skipped, 1, "link.pdf symlink should be skipped");
-        assert_eq!(report.errors, 0, "no errors expected");
+        // On unix the symlink is present so both entries are counted;
+        // on non-unix only real.pdf exists.
+        #[cfg(unix)]
+        {
+            assert_eq!(report.total, 2, "should count both real.pdf and link.pdf");
+            assert_eq!(report.moved, 1);
+            assert_eq!(report.skipped, 1, "link.pdf symlink should be skipped");
+            assert_eq!(report.errors, 0, "no errors expected");
+        }
+        #[cfg(not(unix))]
+        {
+            assert_eq!(report.total, 1, "only real.pdf exists on this platform");
+            assert_eq!(report.moved, 1);
+            assert_eq!(report.skipped, 0);
+            assert_eq!(report.errors, 0);
+        }
 
         // Intermediate state: real.pdf must have been moved
         assert!(
