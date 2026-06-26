@@ -14,7 +14,7 @@ thread_local! {
     /// Override for the config directory during tests.
     /// When set, `config_path()` and `config_dir()` return paths under this directory
     /// instead of the real user config directory.
-    static TEST_CONFIG_DIR: RefCell<Option<PathBuf>> = RefCell::new(None);
+    static TEST_CONFIG_DIR: RefCell<Option<PathBuf>> = const { RefCell::new(None) };
 }
 
 /// Top-level sortcrab configuration persisted as TOML.

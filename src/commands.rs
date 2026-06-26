@@ -133,9 +133,9 @@ pub fn sort_files(
 /// shell expansion — the literal tilde must be resolved programmatically.
 fn resolve_home(path: &Path) -> PathBuf {
     let s = path.to_string_lossy();
-    if s.starts_with("~") {
+    if let Some(stripped) = s.strip_prefix("~") {
         if let Ok(home) = std::env::var("HOME") {
-            let after = s[1..].trim_start_matches('/');
+            let after = stripped.trim_start_matches('/');
             if after.is_empty() {
                 PathBuf::from(home)
             } else {
@@ -315,22 +315,52 @@ mod tests {
         let src = tempdir().unwrap();
         let tgt = tempdir().unwrap();
 
-        let real_file = setup_source_file(src.path(), "real.pdf", b"pdf");
+        setup_source_file(src.path(), "real.pdf", b"pdf");
         #[cfg(unix)]
-        std::os::unix::fs::symlink(&real_file, src.path().join("link.pdf")).unwrap();
+        std::os::unix::fs::symlink(src.path().join("real.pdf"), src.path().join("link.pdf")).unwrap();
+
+        // Debug: list source contents before sort
+        let src_entries: Vec<_> = std::fs::read_dir(src.path())
+            .unwrap()
+            .filter_map(|e| e.ok())
+            .map(|e| e.file_name().to_string_lossy().to_string())
+            .collect();
+        eprintln!("DEBUG [test_symlink_skipped] source before sort: {src_entries:?}");
+
+        // Verify preconditions
+        assert!(
+            src.path().join("real.pdf").exists(),
+            "precondition failed: real.pdf must exist before sort"
+        );
 
         let rules = RulesConfig::default();
         let report = sort_files(src.path(), tgt.path(), &rules).unwrap();
 
         // Both entries are counted (neither is a directory), but the symlink
         // is rejected by move_file.
-        assert_eq!(report.total, 2);
-        assert_eq!(report.moved, 1);
-        assert_eq!(report.skipped, 1);
-        assert_eq!(report.errors, 0);
+        assert_eq!(report.total, 2, "should count both real.pdf and link.pdf");
+        assert_eq!(
+            report.moved, 1,
+            "real.pdf should be moved (got {}); skipped={}, errors={}",
+            report.moved, report.skipped, report.errors
+        );
+        assert_eq!(report.skipped, 1, "link.pdf symlink should be skipped");
+        assert_eq!(report.errors, 0, "no errors expected");
 
-        assert!(!src.path().join("real.pdf").exists());
-        assert!(has_file_under(&tgt.path().join("Documents/PDF"), "real.pdf"));
+        // Intermediate state: real.pdf must have been moved
+        assert!(
+            !src.path().join("real.pdf").exists(),
+            "real.pdf should no longer be in source after move"
+        );
+        assert!(
+            has_file_under(&tgt.path().join("Documents/PDF"), "real.pdf"),
+            "real.pdf should exist in target Documents/PDF; src still contains: {:?}",
+            std::fs::read_dir(src.path())
+                .unwrap()
+                .filter_map(|e| e.ok())
+                .map(|e| e.file_name().to_string_lossy().to_string())
+                .collect::<Vec<_>>()
+        );
     }
 
     #[test]
