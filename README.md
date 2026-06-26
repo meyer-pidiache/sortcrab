@@ -7,10 +7,33 @@ it into a structured destination tree: `{category}/{subcategory}/{semester}/{fil
 
 ## Quick start
 
-```bash
-# Install
-cargo install sortcrab
+### Install
 
+**Option 1 — Homebrew (macOS / Linux)**
+```bash
+brew install meyer-pidiache/sortcrab/sortcrab
+```
+
+**Option 2 — Pre-built binary**
+Download the latest tarball for your platform from
+[GitHub Releases](https://github.com/meyer-pidiache/sortcrab/releases/latest),
+then extract and place `sortcrab` in your `$PATH`.
+
+**Option 3 — Cargo** (once published to crates.io)
+```bash
+cargo install sortcrab
+```
+
+**Option 4 — Build from source**
+```bash
+git clone https://github.com/meyer-pidiache/sortcrab.git
+cd sortcrab
+cargo install --path .
+```
+
+### Usage
+
+```bash
 # Sort your Downloads folder in-place (default)
 sortcrab
 
