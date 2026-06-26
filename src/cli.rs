@@ -35,8 +35,8 @@ pub enum Commands {
 /// Arguments for the `sort` subcommand.
 #[derive(Parser, Debug)]
 pub struct SortArgs {
-    /// Source directory to scan for files (defaults to ~/Downloads)
-    #[arg(short, long, default_value = "~")]
+    /// Source directory to scan for files
+    #[arg(short, long, default_value = "~/Downloads")]
     pub source: PathBuf,
 
     /// Target directory for sorted output (defaults to the source directory for in-place organization)
