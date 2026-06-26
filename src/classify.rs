@@ -13,7 +13,7 @@ pub fn classify_extension<'a>(
     rules: &'a RulesConfig,
     extension: &str,
 ) -> Option<&'a Rule> {
-    let normalized = extension.trim().trim_start_matches('.').to_lowercase();
+    let normalized = extension.trim().trim_start_matches('.').trim().to_lowercase();
     rules.rules.get(&normalized)
 }
 

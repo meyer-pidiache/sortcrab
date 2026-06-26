@@ -1,0 +1,74 @@
+# Contributing
+
+Thanks for your interest in sortcrab. Here is how to get started.
+
+## Prerequisites
+
+- **Rust** 1.85 or later (edition 2024). Install via [rustup](https://rustup.rs/).
+
+## Setup
+
+```bash
+# Clone your fork
+git clone https://github.com/<your-username>/sortcrab.git
+cd sortcrab
+
+# Verify it builds
+cargo build
+
+# Run the tests
+cargo test
+```
+
+## Running tests
+
+```bash
+# All tests
+cargo test
+
+# A specific test
+cargo test test_basic_sort
+
+# With output
+cargo test -- --nocapture
+```
+
+## Linting
+
+sortcrab uses `clippy` with deny-level warnings:
+
+```bash
+cargo clippy --all-targets -- -D warnings
+```
+
+## Commit conventions
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/).
+
+```
+feat: add dry-run mode for sort command
+fix: handle files with no extension gracefully
+docs: update README with semester format details
+chore: bump clap to 4.5
+test: add property tests for collision resolution
+```
+
+Prefixes: `feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`, `style:`.
+
+Keep commits focused on a single change and write the body (if needed) in
+imperative mood. For example: "Add dry-run mode" not "Added dry-run mode".
+
+## Pull request process
+
+1. Fork the repository on GitHub.
+2. Create a feature branch from `main`.
+3. Make your changes and commit them.
+4. Run `cargo test` and `cargo clippy --all-targets -- -D warnings` — both must
+   pass cleanly.
+5. Push your branch and open a PR against `main`.
+6. Describe what the PR does and why. Link related issues if applicable.
+
+## What to work on
+
+Check the issue tracker for open bugs and feature requests. If you want to work
+on something that is not yet tracked, open an issue first to discuss the approach.
