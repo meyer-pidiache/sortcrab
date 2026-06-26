@@ -17,9 +17,9 @@ pub struct RulesConfig {
     pub rules: HashMap<String, Rule>,
 }
 
-impl RulesConfig {
+impl Default for RulesConfig {
     /// Returns the built-in default rules (~79 extension mappings).
-    pub fn default() -> Self {
+    fn default() -> Self {
         let mut rules = HashMap::new();
 
         // ── Documents ──────────────────────────────────────────────
@@ -120,6 +120,9 @@ impl RulesConfig {
         RulesConfig { rules }
     }
 
+}
+
+impl RulesConfig {
     /// Parse a `RulesConfig` from a TOML file at the given path.
     ///
     /// Expected TOML format:

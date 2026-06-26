@@ -8,3 +8,4 @@
 __pycache__/
 *.rs.bk
 .DS_Store
+.sisyphus/

@@ -1,11 +1,21 @@
 // sortcrab — configuration loading, saving, and path resolution
 
+#[cfg(test)]
+use std::cell::RefCell;
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
 use crate::error::SortcrabError;
 use crate::rules::RulesConfig;
+
+#[cfg(test)]
+thread_local! {
+    /// Override for the config directory during tests.
+    /// When set, `config_path()` and `config_dir()` return paths under this directory
+    /// instead of the real user config directory.
+    static TEST_CONFIG_DIR: RefCell<Option<PathBuf>> = RefCell::new(None);
+}
 
 /// Top-level sortcrab configuration persisted as TOML.
 ///
@@ -44,8 +54,22 @@ impl Default for SortcrabConfig {
 pub struct ConfigManager;
 
 impl ConfigManager {
+    #[cfg(test)]
+    pub fn set_test_config_dir(path: PathBuf) {
+        TEST_CONFIG_DIR.with(|d| *d.borrow_mut() = Some(path));
+    }
+
+    #[cfg(test)]
+    pub fn clear_test_config_dir() {
+        TEST_CONFIG_DIR.with(|d| *d.borrow_mut() = None);
+    }
+
     /// Returns `~/.config/sortcrab/config.toml`.
     pub fn config_path() -> Result<PathBuf, SortcrabError> {
+        #[cfg(test)]
+        if let Some(dir) = TEST_CONFIG_DIR.with(|d| d.borrow().clone()) {
+            return Ok(dir.join("config.toml"));
+        }
         let proj_dirs = directories::ProjectDirs::from("com", "", "sortcrab")
             .ok_or_else(|| SortcrabError::Config("could not determine config directory".into()))?;
         Ok(proj_dirs.config_dir().join("config.toml"))
@@ -53,6 +77,10 @@ impl ConfigManager {
 
     /// Returns `~/.config/sortcrab/`.
     pub fn config_dir() -> Result<PathBuf, SortcrabError> {
+        #[cfg(test)]
+        if let Some(dir) = TEST_CONFIG_DIR.with(|d| d.borrow().clone()) {
+            return Ok(dir);
+        }
         let proj_dirs = directories::ProjectDirs::from("com", "", "sortcrab")
             .ok_or_else(|| SortcrabError::Config("could not determine config directory".into()))?;
         Ok(proj_dirs.config_dir().to_path_buf())
@@ -155,26 +183,22 @@ mod tests {
 
     #[test]
     fn test_load_returns_defaults_when_config_missing() {
-        let path = ConfigManager::config_path().unwrap();
-        let existed = path.exists();
-        if existed {
-            std::fs::remove_file(&path).unwrap();
-        }
+        let tmp = tempfile::tempdir().unwrap();
+        ConfigManager::set_test_config_dir(tmp.path().to_path_buf());
 
         let config = ConfigManager::load().unwrap();
         assert!(!config.rules.rules.is_empty(), "fallback config should have rules");
         assert_eq!(config.version, "1");
 
-        if existed {
-            ConfigManager::create_default().unwrap();
-        }
+        ConfigManager::clear_test_config_dir();
     }
 
     #[test]
     fn test_create_default_and_load() {
-        let path = ConfigManager::config_path().unwrap();
+        let tmp = tempfile::tempdir().unwrap();
+        ConfigManager::set_test_config_dir(tmp.path().to_path_buf());
 
-        let _ = std::fs::remove_file(&path);
+        let path = ConfigManager::config_path().unwrap();
 
         ConfigManager::create_default().unwrap();
         assert!(path.exists(), "config file should exist after create_default");
@@ -183,6 +207,6 @@ mod tests {
         assert!(!config.rules.rules.is_empty(), "loaded config should have rules");
         assert_eq!(config.version, "1");
 
-        std::fs::remove_file(&path).unwrap();
+        ConfigManager::clear_test_config_dir();
     }
 }

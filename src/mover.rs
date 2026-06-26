@@ -62,12 +62,11 @@ pub fn move_file(opts: &MoveOptions<'_>) -> Result<PathBuf, SortcrabError> {
     // ── Idempotency check ──────────────────────────────────────────
     // If the destination directory already exists and the source file
     // is already inside it, the file is already organised — skip.
-    if let Ok(dest_canonical) = fs::canonicalize(&dest_dir) {
-        if let Ok(source_canonical) = fs::canonicalize(opts.source) {
-            if source_canonical.starts_with(&dest_canonical) {
-                return Ok(source_canonical);
-            }
-        }
+    if let Ok(dest_canonical) = fs::canonicalize(&dest_dir)
+        && let Ok(source_canonical) = fs::canonicalize(opts.source)
+        && source_canonical.starts_with(&dest_canonical)
+    {
+        return Ok(source_canonical);
     }
 
     // ── Create destination directory ───────────────────────────────
@@ -131,7 +130,6 @@ fn resolve_collision(dest_dir: &Path, filename: &str) -> PathBuf {
 fn is_crosses_devices(e: &io::Error) -> bool {
     e.kind() == io::ErrorKind::CrossesDevices
         || e.raw_os_error() == Some(18)   // EXDEV (Linux)
-        || e.raw_os_error() == Some(1)    // EXDEV on some platforms
 }
 
 #[cfg(test)]
