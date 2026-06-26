@@ -23,103 +23,576 @@ impl Default for RulesConfig {
         let mut rules = HashMap::new();
 
         // ── Documents ──────────────────────────────────────────────
-        rules.insert("pdf".into(),   Rule { category: "Documents".into(), subcategory: "PDF".into() });
-        rules.insert("doc".into(),   Rule { category: "Documents".into(), subcategory: "Word".into() });
-        rules.insert("docx".into(),  Rule { category: "Documents".into(), subcategory: "Word".into() });
-        rules.insert("odt".into(),   Rule { category: "Documents".into(), subcategory: "Word".into() });
-        rules.insert("txt".into(),   Rule { category: "Documents".into(), subcategory: "Text".into() });
-        rules.insert("md".into(),    Rule { category: "Documents".into(), subcategory: "Text".into() });
-        rules.insert("rtf".into(),   Rule { category: "Documents".into(), subcategory: "Text".into() });
-        rules.insert("tex".into(),   Rule { category: "Documents".into(), subcategory: "Latex".into() });
-        rules.insert("ppt".into(),   Rule { category: "Documents".into(), subcategory: "Presentations".into() });
-        rules.insert("pptx".into(),  Rule { category: "Documents".into(), subcategory: "Presentations".into() });
-        rules.insert("odp".into(),   Rule { category: "Documents".into(), subcategory: "Presentations".into() });
-        rules.insert("xls".into(),   Rule { category: "Documents".into(), subcategory: "Spreadsheets".into() });
-        rules.insert("xlsx".into(),  Rule { category: "Documents".into(), subcategory: "Spreadsheets".into() });
-        rules.insert("ods".into(),   Rule { category: "Documents".into(), subcategory: "Spreadsheets".into() });
-        rules.insert("csv".into(),   Rule { category: "Documents".into(), subcategory: "Data".into() });
-        rules.insert("json".into(),  Rule { category: "Documents".into(), subcategory: "Data".into() });
-        rules.insert("xml".into(),   Rule { category: "Documents".into(), subcategory: "Data".into() });
+        rules.insert(
+            "pdf".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "PDF".into(),
+            },
+        );
+        rules.insert(
+            "doc".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Word".into(),
+            },
+        );
+        rules.insert(
+            "docx".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Word".into(),
+            },
+        );
+        rules.insert(
+            "odt".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Word".into(),
+            },
+        );
+        rules.insert(
+            "txt".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Text".into(),
+            },
+        );
+        rules.insert(
+            "md".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Text".into(),
+            },
+        );
+        rules.insert(
+            "rtf".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Text".into(),
+            },
+        );
+        rules.insert(
+            "tex".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Latex".into(),
+            },
+        );
+        rules.insert(
+            "ppt".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Presentations".into(),
+            },
+        );
+        rules.insert(
+            "pptx".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Presentations".into(),
+            },
+        );
+        rules.insert(
+            "odp".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Presentations".into(),
+            },
+        );
+        rules.insert(
+            "xls".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Spreadsheets".into(),
+            },
+        );
+        rules.insert(
+            "xlsx".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Spreadsheets".into(),
+            },
+        );
+        rules.insert(
+            "ods".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Spreadsheets".into(),
+            },
+        );
+        rules.insert(
+            "csv".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Data".into(),
+            },
+        );
+        rules.insert(
+            "json".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Data".into(),
+            },
+        );
+        rules.insert(
+            "xml".into(),
+            Rule {
+                category: "Documents".into(),
+                subcategory: "Data".into(),
+            },
+        );
 
         // ── Media / Images ─────────────────────────────────────────
-        rules.insert("jpg".into(),   Rule { category: "Media".into(), subcategory: "Images".into() });
-        rules.insert("jpeg".into(),  Rule { category: "Media".into(), subcategory: "Images".into() });
-        rules.insert("png".into(),   Rule { category: "Media".into(), subcategory: "Images".into() });
-        rules.insert("gif".into(),   Rule { category: "Media".into(), subcategory: "Images".into() });
-        rules.insert("bmp".into(),   Rule { category: "Media".into(), subcategory: "Images".into() });
-        rules.insert("svg".into(),   Rule { category: "Media".into(), subcategory: "Images/Vectors".into() });
-        rules.insert("webp".into(),  Rule { category: "Media".into(), subcategory: "Images".into() });
-        rules.insert("heic".into(),  Rule { category: "Media".into(), subcategory: "Images".into() });
-        rules.insert("psd".into(),   Rule { category: "Media".into(), subcategory: "Images/Photoshop".into() });
-        rules.insert("ai".into(),    Rule { category: "Media".into(), subcategory: "Images/Illustrator".into() });
-        rules.insert("indd".into(),  Rule { category: "Media".into(), subcategory: "Images/InDesign".into() });
+        rules.insert(
+            "jpg".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Images".into(),
+            },
+        );
+        rules.insert(
+            "jpeg".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Images".into(),
+            },
+        );
+        rules.insert(
+            "png".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Images".into(),
+            },
+        );
+        rules.insert(
+            "gif".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Images".into(),
+            },
+        );
+        rules.insert(
+            "bmp".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Images".into(),
+            },
+        );
+        rules.insert(
+            "svg".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Images/Vectors".into(),
+            },
+        );
+        rules.insert(
+            "webp".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Images".into(),
+            },
+        );
+        rules.insert(
+            "heic".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Images".into(),
+            },
+        );
+        rules.insert(
+            "psd".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Images/Photoshop".into(),
+            },
+        );
+        rules.insert(
+            "ai".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Images/Illustrator".into(),
+            },
+        );
+        rules.insert(
+            "indd".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Images/InDesign".into(),
+            },
+        );
 
         // ── Media / Audio ──────────────────────────────────────────
-        rules.insert("mp3".into(),   Rule { category: "Media".into(), subcategory: "Audio".into() });
-        rules.insert("wav".into(),   Rule { category: "Media".into(), subcategory: "Audio".into() });
-        rules.insert("flac".into(),  Rule { category: "Media".into(), subcategory: "Audio".into() });
-        rules.insert("aac".into(),   Rule { category: "Media".into(), subcategory: "Audio".into() });
-        rules.insert("ogg".into(),   Rule { category: "Media".into(), subcategory: "Audio".into() });
-        rules.insert("m4a".into(),   Rule { category: "Media".into(), subcategory: "Audio".into() });
+        rules.insert(
+            "mp3".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Audio".into(),
+            },
+        );
+        rules.insert(
+            "wav".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Audio".into(),
+            },
+        );
+        rules.insert(
+            "flac".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Audio".into(),
+            },
+        );
+        rules.insert(
+            "aac".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Audio".into(),
+            },
+        );
+        rules.insert(
+            "ogg".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Audio".into(),
+            },
+        );
+        rules.insert(
+            "m4a".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Audio".into(),
+            },
+        );
 
         // ── Media / Videos ─────────────────────────────────────────
-        rules.insert("mp4".into(),   Rule { category: "Media".into(), subcategory: "Videos".into() });
-        rules.insert("mov".into(),   Rule { category: "Media".into(), subcategory: "Videos".into() });
-        rules.insert("avi".into(),   Rule { category: "Media".into(), subcategory: "Videos".into() });
-        rules.insert("mkv".into(),   Rule { category: "Media".into(), subcategory: "Videos".into() });
-        rules.insert("flv".into(),   Rule { category: "Media".into(), subcategory: "Videos".into() });
-        rules.insert("wmv".into(),   Rule { category: "Media".into(), subcategory: "Videos".into() });
-        rules.insert("webm".into(),  Rule { category: "Media".into(), subcategory: "Videos".into() });
+        rules.insert(
+            "mp4".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Videos".into(),
+            },
+        );
+        rules.insert(
+            "mov".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Videos".into(),
+            },
+        );
+        rules.insert(
+            "avi".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Videos".into(),
+            },
+        );
+        rules.insert(
+            "mkv".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Videos".into(),
+            },
+        );
+        rules.insert(
+            "flv".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Videos".into(),
+            },
+        );
+        rules.insert(
+            "wmv".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Videos".into(),
+            },
+        );
+        rules.insert(
+            "webm".into(),
+            Rule {
+                category: "Media".into(),
+                subcategory: "Videos".into(),
+            },
+        );
 
         // ── Archives ───────────────────────────────────────────────
-        rules.insert("zip".into(),   Rule { category: "Archives".into(), subcategory: "Archives".into() });
-        rules.insert("rar".into(),   Rule { category: "Archives".into(), subcategory: "Archives".into() });
-        rules.insert("7z".into(),    Rule { category: "Archives".into(), subcategory: "Archives".into() });
-        rules.insert("tar".into(),   Rule { category: "Archives".into(), subcategory: "Archives".into() });
-        rules.insert("gz".into(),    Rule { category: "Archives".into(), subcategory: "Archives".into() });
-        rules.insert("bz2".into(),   Rule { category: "Archives".into(), subcategory: "Archives".into() });
-        rules.insert("xz".into(),    Rule { category: "Archives".into(), subcategory: "Archives".into() });
+        rules.insert(
+            "zip".into(),
+            Rule {
+                category: "Archives".into(),
+                subcategory: "Archives".into(),
+            },
+        );
+        rules.insert(
+            "rar".into(),
+            Rule {
+                category: "Archives".into(),
+                subcategory: "Archives".into(),
+            },
+        );
+        rules.insert(
+            "7z".into(),
+            Rule {
+                category: "Archives".into(),
+                subcategory: "Archives".into(),
+            },
+        );
+        rules.insert(
+            "tar".into(),
+            Rule {
+                category: "Archives".into(),
+                subcategory: "Archives".into(),
+            },
+        );
+        rules.insert(
+            "gz".into(),
+            Rule {
+                category: "Archives".into(),
+                subcategory: "Archives".into(),
+            },
+        );
+        rules.insert(
+            "bz2".into(),
+            Rule {
+                category: "Archives".into(),
+                subcategory: "Archives".into(),
+            },
+        );
+        rules.insert(
+            "xz".into(),
+            Rule {
+                category: "Archives".into(),
+                subcategory: "Archives".into(),
+            },
+        );
 
         // ── Packages ───────────────────────────────────────────────
-        rules.insert("deb".into(),      Rule { category: "Packages".into(), subcategory: "Packages".into() });
-        rules.insert("rpm".into(),      Rule { category: "Packages".into(), subcategory: "Packages".into() });
-        rules.insert("exe".into(),      Rule { category: "Packages".into(), subcategory: "Packages".into() });
-        rules.insert("msi".into(),      Rule { category: "Packages".into(), subcategory: "Packages".into() });
-        rules.insert("dmg".into(),      Rule { category: "Packages".into(), subcategory: "Packages".into() });
-        rules.insert("pkg".into(),      Rule { category: "Packages".into(), subcategory: "Packages".into() });
-        rules.insert("appimage".into(), Rule { category: "Packages".into(), subcategory: "Packages".into() });
+        rules.insert(
+            "deb".into(),
+            Rule {
+                category: "Packages".into(),
+                subcategory: "Packages".into(),
+            },
+        );
+        rules.insert(
+            "rpm".into(),
+            Rule {
+                category: "Packages".into(),
+                subcategory: "Packages".into(),
+            },
+        );
+        rules.insert(
+            "exe".into(),
+            Rule {
+                category: "Packages".into(),
+                subcategory: "Packages".into(),
+            },
+        );
+        rules.insert(
+            "msi".into(),
+            Rule {
+                category: "Packages".into(),
+                subcategory: "Packages".into(),
+            },
+        );
+        rules.insert(
+            "dmg".into(),
+            Rule {
+                category: "Packages".into(),
+                subcategory: "Packages".into(),
+            },
+        );
+        rules.insert(
+            "pkg".into(),
+            Rule {
+                category: "Packages".into(),
+                subcategory: "Packages".into(),
+            },
+        );
+        rules.insert(
+            "appimage".into(),
+            Rule {
+                category: "Packages".into(),
+                subcategory: "Packages".into(),
+            },
+        );
 
         // ── Development ────────────────────────────────────────────
-        rules.insert("sh".into(),         Rule { category: "Development".into(), subcategory: "Scripts".into() });
-        rules.insert("bash".into(),       Rule { category: "Development".into(), subcategory: "Scripts".into() });
-        rules.insert("py".into(),         Rule { category: "Development".into(), subcategory: "Python".into() });
-        rules.insert("js".into(),         Rule { category: "Development".into(), subcategory: "JavaScript".into() });
-        rules.insert("ts".into(),         Rule { category: "Development".into(), subcategory: "TypeScript".into() });
-        rules.insert("java".into(),       Rule { category: "Development".into(), subcategory: "Java".into() });
-        rules.insert("c".into(),          Rule { category: "Development".into(), subcategory: "C".into() });
-        rules.insert("cpp".into(),        Rule { category: "Development".into(), subcategory: "C++".into() });
-        rules.insert("cs".into(),         Rule { category: "Development".into(), subcategory: "CSharp".into() });
-        rules.insert("go".into(),         Rule { category: "Development".into(), subcategory: "Go".into() });
-        rules.insert("rs".into(),         Rule { category: "Development".into(), subcategory: "Rust".into() });
-        rules.insert("php".into(),        Rule { category: "Development".into(), subcategory: "Web".into() });
-        rules.insert("html".into(),       Rule { category: "Development".into(), subcategory: "Web".into() });
-        rules.insert("css".into(),        Rule { category: "Development".into(), subcategory: "Web".into() });
-        rules.insert("scss".into(),       Rule { category: "Development".into(), subcategory: "Web".into() });
-        rules.insert("sql".into(),        Rule { category: "Development".into(), subcategory: "Databases".into() });
-        rules.insert("db".into(),         Rule { category: "Development".into(), subcategory: "Databases".into() });
-        rules.insert("sqlite".into(),     Rule { category: "Development".into(), subcategory: "Databases".into() });
-        rules.insert("dockerfile".into(), Rule { category: "Development".into(), subcategory: "Docker".into() });
+        rules.insert(
+            "sh".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Scripts".into(),
+            },
+        );
+        rules.insert(
+            "bash".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Scripts".into(),
+            },
+        );
+        rules.insert(
+            "py".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Python".into(),
+            },
+        );
+        rules.insert(
+            "js".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "JavaScript".into(),
+            },
+        );
+        rules.insert(
+            "ts".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "TypeScript".into(),
+            },
+        );
+        rules.insert(
+            "java".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Java".into(),
+            },
+        );
+        rules.insert(
+            "c".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "C".into(),
+            },
+        );
+        rules.insert(
+            "cpp".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "C++".into(),
+            },
+        );
+        rules.insert(
+            "cs".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "CSharp".into(),
+            },
+        );
+        rules.insert(
+            "go".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Go".into(),
+            },
+        );
+        rules.insert(
+            "rs".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Rust".into(),
+            },
+        );
+        rules.insert(
+            "php".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Web".into(),
+            },
+        );
+        rules.insert(
+            "html".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Web".into(),
+            },
+        );
+        rules.insert(
+            "css".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Web".into(),
+            },
+        );
+        rules.insert(
+            "scss".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Web".into(),
+            },
+        );
+        rules.insert(
+            "sql".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Databases".into(),
+            },
+        );
+        rules.insert(
+            "db".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Databases".into(),
+            },
+        );
+        rules.insert(
+            "sqlite".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Databases".into(),
+            },
+        );
+        rules.insert(
+            "dockerfile".into(),
+            Rule {
+                category: "Development".into(),
+                subcategory: "Docker".into(),
+            },
+        );
 
         // ── Other ──────────────────────────────────────────────────
-        rules.insert("torrent".into(), Rule { category: "Other".into(), subcategory: "Torrents".into() });
-        rules.insert("iso".into(),     Rule { category: "Other".into(), subcategory: "DiskImages".into() });
-        rules.insert("img".into(),     Rule { category: "Other".into(), subcategory: "DiskImages".into() });
-        rules.insert("vdi".into(),     Rule { category: "Other".into(), subcategory: "VirtualMachines".into() });
-        rules.insert("vbox".into(),    Rule { category: "Other".into(), subcategory: "VirtualMachines".into() });
+        rules.insert(
+            "torrent".into(),
+            Rule {
+                category: "Other".into(),
+                subcategory: "Torrents".into(),
+            },
+        );
+        rules.insert(
+            "iso".into(),
+            Rule {
+                category: "Other".into(),
+                subcategory: "DiskImages".into(),
+            },
+        );
+        rules.insert(
+            "img".into(),
+            Rule {
+                category: "Other".into(),
+                subcategory: "DiskImages".into(),
+            },
+        );
+        rules.insert(
+            "vdi".into(),
+            Rule {
+                category: "Other".into(),
+                subcategory: "VirtualMachines".into(),
+            },
+        );
+        rules.insert(
+            "vbox".into(),
+            Rule {
+                category: "Other".into(),
+                subcategory: "VirtualMachines".into(),
+            },
+        );
 
         RulesConfig { rules }
     }
-
 }
 
 impl RulesConfig {
@@ -160,7 +633,11 @@ mod tests {
     fn test_default_rules_count() {
         let config = RulesConfig::default();
         // PoC has ~79 entries — require at least 45 as per spec
-        assert!(config.rules.len() >= 45, "Expected >= 45 rules, got {}", config.rules.len());
+        assert!(
+            config.rules.len() >= 45,
+            "Expected >= 45 rules, got {}",
+            config.rules.len()
+        );
     }
 
     #[test]

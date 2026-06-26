@@ -33,17 +33,10 @@ pub fn semester_from_time(modified: &SystemTime) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::{NaiveDate, NaiveTime, Local};
+    use chrono::{Local, NaiveDate, NaiveTime};
     use std::time::SystemTime;
 
-    fn local_time(
-        year: i32,
-        month: u32,
-        day: u32,
-        hour: u32,
-        min: u32,
-        sec: u32,
-    ) -> SystemTime {
+    fn local_time(year: i32, month: u32, day: u32, hour: u32, min: u32, sec: u32) -> SystemTime {
         let naive_dt = NaiveDate::from_ymd_opt(year, month, day)
             .unwrap()
             .and_time(NaiveTime::from_hms_opt(hour, min, sec).unwrap());

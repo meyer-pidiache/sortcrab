@@ -52,11 +52,31 @@ fn test_full_sort_pipeline() {
 
     let sem = current_semester();
 
-    assert!(tgt.path().join(format!("Documents/PDF/{sem}/report.pdf")).exists());
-    assert!(tgt.path().join(format!("Media/Audio/{sem}/song.mp3")).exists());
-    assert!(tgt.path().join(format!("Development/Rust/{sem}/main.rs")).exists());
-    assert!(tgt.path().join(format!("Media/Images/{sem}/photo.jpg")).exists());
-    assert!(tgt.path().join(format!("Documents/Text/{sem}/notes.txt")).exists());
+    assert!(
+        tgt.path()
+            .join(format!("Documents/PDF/{sem}/report.pdf"))
+            .exists()
+    );
+    assert!(
+        tgt.path()
+            .join(format!("Media/Audio/{sem}/song.mp3"))
+            .exists()
+    );
+    assert!(
+        tgt.path()
+            .join(format!("Development/Rust/{sem}/main.rs"))
+            .exists()
+    );
+    assert!(
+        tgt.path()
+            .join(format!("Media/Images/{sem}/photo.jpg"))
+            .exists()
+    );
+    assert!(
+        tgt.path()
+            .join(format!("Documents/Text/{sem}/notes.txt"))
+            .exists()
+    );
 
     // Original files should be gone (moved, not copied)
     assert!(!src.path().join("report.pdf").exists());
@@ -148,7 +168,11 @@ fn test_sort_all_skip_conditions() {
     assert!(!src.path().join("visible.pdf").exists());
 
     let sem = current_semester();
-    assert!(tgt.path().join(format!("Documents/PDF/{sem}/visible.pdf")).exists());
+    assert!(
+        tgt.path()
+            .join(format!("Documents/PDF/{sem}/visible.pdf"))
+            .exists()
+    );
 }
 
 // ── Mixed known and unknown extensions ───────────────────────────────────────
@@ -181,7 +205,11 @@ fn test_sort_nested_directories() {
 
     // Subdirectory with a file inside
     fs::create_dir(src.path().join("subdir")).unwrap();
-    create_file(src.path().join("subdir").as_ref(), "inner.pdf", b"inner content");
+    create_file(
+        src.path().join("subdir").as_ref(),
+        "inner.pdf",
+        b"inner content",
+    );
     // File at root level
     create_file(src.path(), "root.pdf", b"root content");
 
@@ -199,7 +227,11 @@ fn test_sort_nested_directories() {
     assert!(src.path().join("subdir/inner.pdf").exists());
 
     let sem = current_semester();
-    assert!(tgt.path().join(format!("Documents/PDF/{sem}/root.pdf")).exists());
+    assert!(
+        tgt.path()
+            .join(format!("Documents/PDF/{sem}/root.pdf"))
+            .exists()
+    );
 }
 
 // ── Init command via CLI subprocess with isolated HOME ─────────────────────
@@ -227,9 +259,18 @@ fn test_init_command() {
 
     // Verify the config is valid TOML with rules
     let content = std::fs::read_to_string(&config_path).unwrap();
-    assert!(content.contains("version = \"1\""), "config should contain version");
-    assert!(content.contains("category = \"Documents\""), "config should contain a rule with category");
-    assert!(content.contains("subcategory = \"PDF\""), "config should contain a rule with subcategory");
+    assert!(
+        content.contains("version = \"1\""),
+        "config should contain version"
+    );
+    assert!(
+        content.contains("category = \"Documents\""),
+        "config should contain a rule with category"
+    );
+    assert!(
+        content.contains("subcategory = \"PDF\""),
+        "config should contain a rule with subcategory"
+    );
 }
 
 // ── CLI --version ────────────────────────────────────────────────────────────
@@ -244,7 +285,10 @@ fn test_cli_version() {
 
     assert!(output.status.success(), "sortcrab --version should exit 0");
     let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(stdout.contains("sortcrab"), "version output should contain 'sortcrab'");
+    assert!(
+        stdout.contains("sortcrab"),
+        "version output should contain 'sortcrab'"
+    );
 }
 
 // ── CLI invalid subcommand ───────────────────────────────────────────────────
@@ -257,5 +301,8 @@ fn test_cli_invalid_subcommand() {
         .output()
         .expect("failed to run sortcrab with invalid subcommand");
 
-    assert!(!output.status.success(), "invalid subcommand should exit with error");
+    assert!(
+        !output.status.success(),
+        "invalid subcommand should exit with error"
+    );
 }

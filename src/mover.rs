@@ -101,10 +101,7 @@ fn resolve_collision(dest_dir: &Path, filename: &str) -> PathBuf {
     }
 
     let p = Path::new(filename);
-    let stem = p
-        .file_stem()
-        .and_then(|s| s.to_str())
-        .unwrap_or(filename);
+    let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or(filename);
 
     let ext = match p.extension().and_then(|s| s.to_str()) {
         Some(e) if !e.is_empty() => format!(".{}", e),
@@ -128,8 +125,7 @@ fn resolve_collision(dest_dir: &Path, filename: &str) -> PathBuf {
 /// points.  On Linux the raw OS error is `EXDEV` (18); Rust 1.75+
 /// stabilised `io::ErrorKind::CrossesDevices` for portable checks.
 fn is_crosses_devices(e: &io::Error) -> bool {
-    e.kind() == io::ErrorKind::CrossesDevices
-        || e.raw_os_error() == Some(18)   // EXDEV (Linux)
+    e.kind() == io::ErrorKind::CrossesDevices || e.raw_os_error() == Some(18) // EXDEV (Linux)
 }
 
 #[cfg(test)]
@@ -172,7 +168,10 @@ mod tests {
         // Destination should exist
         assert!(dest.exists(), "destination file should exist");
         // Source should be gone (rename)
-        assert!(!source_file.exists(), "source file should be gone after move");
+        assert!(
+            !source_file.exists(),
+            "source file should be gone after move"
+        );
         // Dest should be at the expected path
         let expected = tgt_dir.path().join("academic/math/2025-I/notes.pdf");
         assert_eq!(dest, expected);
@@ -217,8 +216,14 @@ mod tests {
         // Check specific names exist
         let dir = tgt_dir.path().join("academic/math/2025-I");
         assert!(dir.join("report.pdf").exists(), "report.pdf should exist");
-        assert!(dir.join("report-1.pdf").exists(), "report-1.pdf should exist");
-        assert!(dir.join("report-2.pdf").exists(), "report-2.pdf should exist");
+        assert!(
+            dir.join("report-1.pdf").exists(),
+            "report-1.pdf should exist"
+        );
+        assert!(
+            dir.join("report-2.pdf").exists(),
+            "report-2.pdf should exist"
+        );
     }
 
     // ── test_skip_dotfiles ────────────────────────────────────────
@@ -244,13 +249,20 @@ mod tests {
         let err = result.unwrap_err();
         match err {
             SortcrabError::Skipped(ref msg) => {
-                assert!(msg.contains("dotfile"), "error should mention dotfile: {}", msg);
+                assert!(
+                    msg.contains("dotfile"),
+                    "error should mention dotfile: {}",
+                    msg
+                );
             }
             _ => panic!("expected Skipped error, got: {:?}", err),
         }
 
         // Source should still exist (was not moved)
-        assert!(source_file.exists(), "dotfile source should remain untouched");
+        assert!(
+            source_file.exists(),
+            "dotfile source should remain untouched"
+        );
     }
 
     // ── test_skip_symlink ─────────────────────────────────────────
@@ -283,7 +295,11 @@ mod tests {
         let err = result.unwrap_err();
         match err {
             SortcrabError::Skipped(ref msg) => {
-                assert!(msg.contains("symlink"), "error should mention symlink: {}", msg);
+                assert!(
+                    msg.contains("symlink"),
+                    "error should mention symlink: {}",
+                    msg
+                );
             }
             _ => panic!("expected Skipped error, got: {:?}", err),
         }

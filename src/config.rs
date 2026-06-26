@@ -106,8 +106,8 @@ impl ConfigManager {
         std::fs::create_dir_all(&dir)?;
 
         let config = SortcrabConfig::default();
-        let toml_str = toml::to_string_pretty(&config)
-            .map_err(|e| SortcrabError::Config(e.to_string()))?;
+        let toml_str =
+            toml::to_string_pretty(&config).map_err(|e| SortcrabError::Config(e.to_string()))?;
         std::fs::write(&path, toml_str)?;
 
         tracing::info!("Created default config at {:?}", path);
@@ -166,17 +166,19 @@ mod tests {
     #[test]
     fn test_sortcrab_config_default() {
         let config = SortcrabConfig::default();
-        assert!(!config.rules.rules.is_empty(), "default rules should not be empty");
+        assert!(
+            !config.rules.rules.is_empty(),
+            "default rules should not be empty"
+        );
         assert_eq!(config.version, "1");
     }
 
     #[test]
     fn test_sortcrab_config_toml_roundtrip() {
         let config = SortcrabConfig::default();
-        let toml_str = toml::to_string_pretty(&config)
-            .expect("serialization should succeed");
-        let parsed: SortcrabConfig = toml::from_str(&toml_str)
-            .expect("deserialization should succeed");
+        let toml_str = toml::to_string_pretty(&config).expect("serialization should succeed");
+        let parsed: SortcrabConfig =
+            toml::from_str(&toml_str).expect("deserialization should succeed");
         assert_eq!(parsed.rules.rules.len(), config.rules.rules.len());
         assert_eq!(parsed.version, "1");
     }
@@ -187,7 +189,10 @@ mod tests {
         ConfigManager::set_test_config_dir(tmp.path().to_path_buf());
 
         let config = ConfigManager::load().unwrap();
-        assert!(!config.rules.rules.is_empty(), "fallback config should have rules");
+        assert!(
+            !config.rules.rules.is_empty(),
+            "fallback config should have rules"
+        );
         assert_eq!(config.version, "1");
 
         ConfigManager::clear_test_config_dir();
@@ -201,10 +206,16 @@ mod tests {
         let path = ConfigManager::config_path().unwrap();
 
         ConfigManager::create_default().unwrap();
-        assert!(path.exists(), "config file should exist after create_default");
+        assert!(
+            path.exists(),
+            "config file should exist after create_default"
+        );
 
         let config = ConfigManager::load().unwrap();
-        assert!(!config.rules.rules.is_empty(), "loaded config should have rules");
+        assert!(
+            !config.rules.rules.is_empty(),
+            "loaded config should have rules"
+        );
         assert_eq!(config.version, "1");
 
         ConfigManager::clear_test_config_dir();

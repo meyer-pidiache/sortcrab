@@ -2,14 +2,14 @@
 
 use clap::Parser;
 
+pub mod classify;
 pub mod cli;
 pub mod commands;
 pub mod config;
-pub mod rules;
-pub mod classify;
-pub mod semester;
-pub mod mover;
 pub mod error;
+pub mod mover;
+pub mod rules;
+pub mod semester;
 
 use tracing_subscriber::EnvFilter;
 
@@ -42,4 +42,3 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let cli = cli::Cli::parse();
     cli::run(cli).map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
 }
-

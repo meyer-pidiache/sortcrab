@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use crate::classify::classify_file;
 use crate::cli::SortArgs;
 use crate::error::SortcrabError;
-use crate::mover::{move_file, MoveOptions};
+use crate::mover::{MoveOptions, move_file};
 use crate::rules::RulesConfig;
 use crate::semester::semester_from_time;
 
@@ -82,6 +82,17 @@ pub fn sort_files(
             }
         };
 
+        // ── Skip symlinks early ────────────────────────────────────
+        // fs::metadata follows symlinks and would error on a broken
+        // symlink whose target was already moved in this pass.
+        if let Ok(meta) = fs::symlink_metadata(&path)
+            && meta.is_symlink()
+        {
+            tracing::debug!("Skipping symlink: {}", path.display());
+            report.skipped += 1;
+            continue;
+        }
+
         let modified = match fs::metadata(&path) {
             Ok(meta) => match meta.modified() {
                 Ok(t) => t,
@@ -156,10 +167,7 @@ fn resolve_home(path: &Path) -> PathBuf {
 /// and prints a human-readable summary.
 pub fn execute_sort(args: &SortArgs) -> Result<(), SortcrabError> {
     let source = resolve_home(&args.source);
-    let target: PathBuf = args
-        .target
-        .clone()
-        .unwrap_or_else(|| source.clone());
+    let target: PathBuf = args.target.clone().unwrap_or_else(|| source.clone());
 
     tracing::debug!("Sort source: {:?}, target: {:?}", source, target);
 
@@ -237,9 +245,15 @@ mod tests {
         assert!(!src.path().join("song.mp3").exists());
         assert!(!src.path().join("main.rs").exists());
 
-        assert!(has_file_under(&tgt.path().join("Documents/PDF"), "report.pdf"));
+        assert!(has_file_under(
+            &tgt.path().join("Documents/PDF"),
+            "report.pdf"
+        ));
         assert!(has_file_under(&tgt.path().join("Media/Audio"), "song.mp3"));
-        assert!(has_file_under(&tgt.path().join("Development/Rust"), "main.rs"));
+        assert!(has_file_under(
+            &tgt.path().join("Development/Rust"),
+            "main.rs"
+        ));
     }
 
     #[test]
@@ -254,11 +268,7 @@ mod tests {
 
         let sem = current_semester();
         let expected = tgt.path().join(format!("Documents/PDF/{sem}/report.pdf"));
-        assert!(
-            expected.exists(),
-            "Expected file at {}",
-            expected.display()
-        );
+        assert!(expected.exists(), "Expected file at {}", expected.display());
     }
 
     #[test]
@@ -317,7 +327,8 @@ mod tests {
 
         setup_source_file(src.path(), "real.pdf", b"pdf");
         #[cfg(unix)]
-        std::os::unix::fs::symlink(src.path().join("real.pdf"), src.path().join("link.pdf")).unwrap();
+        std::os::unix::fs::symlink(src.path().join("real.pdf"), src.path().join("link.pdf"))
+            .unwrap();
 
         // Debug: list source contents before sort
         let src_entries: Vec<_> = std::fs::read_dir(src.path())

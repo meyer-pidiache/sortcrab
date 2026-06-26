@@ -9,7 +9,7 @@ use chrono::{DateTime, Datelike, Local, NaiveDate, NaiveTime, TimeZone};
 use proptest::prelude::*;
 
 use sortcrab::classify::classify_extension;
-use sortcrab::mover::{move_file, Classification, MoveOptions};
+use sortcrab::mover::{Classification, MoveOptions, move_file};
 use sortcrab::rules::RulesConfig;
 use sortcrab::semester::semester_from_time;
 
@@ -37,15 +37,13 @@ fn date_strategy() -> BoxedStrategy<NaiveDate> {
 // ── Extension strategy: case / dot / whitespace variants of known extensions ─
 
 static EXT_VARIANTS: &[&str] = &[
-    "pdf", "PDF", "Pdf", "pDF", "pDf", "PdF", "mp3", "MP3", "Mp3", "mP3", "rs",
-    "RS", "Rs", "rS", "jpg", "JPG", "Jpg", "jPG", "jPg", "jpG", "txt", "TXT",
-    "Txt", "tXT", ".pdf", ".PDF", ".Pdf", " pdf ", " PDF ", " pdf", ". Mp3",
-    " .mp3", "  txt  ", ".Rs", " .Rs ",
+    "pdf", "PDF", "Pdf", "pDF", "pDf", "PdF", "mp3", "MP3", "Mp3", "mP3", "rs", "RS", "Rs", "rS",
+    "jpg", "JPG", "Jpg", "jPG", "jPg", "jpG", "txt", "TXT", "Txt", "tXT", ".pdf", ".PDF", ".Pdf",
+    " pdf ", " PDF ", " pdf", ". Mp3", " .mp3", "  txt  ", ".Rs", " .Rs ",
 ];
 
 fn ext_case_strategy() -> impl Strategy<Value = String> {
-    prop::sample::subsequence(EXT_VARIANTS.to_vec(), 1..2)
-        .prop_map(|v| v[0].to_string())
+    prop::sample::subsequence(EXT_VARIANTS.to_vec(), 1..2).prop_map(|v| v[0].to_string())
 }
 
 // ── Collision resolution ─────────────────────────────────────────────────────

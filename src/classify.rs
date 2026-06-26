@@ -9,11 +9,12 @@ use std::path::Path;
 ///
 /// Normalises the extension to lowercase and strips any leading dot before
 /// performing the lookup.
-pub fn classify_extension<'a>(
-    rules: &'a RulesConfig,
-    extension: &str,
-) -> Option<&'a Rule> {
-    let normalized = extension.trim().trim_start_matches('.').trim().to_lowercase();
+pub fn classify_extension<'a>(rules: &'a RulesConfig, extension: &str) -> Option<&'a Rule> {
+    let normalized = extension
+        .trim()
+        .trim_start_matches('.')
+        .trim()
+        .to_lowercase();
     rules.rules.get(&normalized)
 }
 
@@ -27,19 +28,15 @@ pub fn classify_extension<'a>(
 /// - The file has no extension (e.g. `"Makefile"`)
 /// - The extension is empty after normalisation
 /// - The extension is not in the rules table
-pub fn classify_file(
-    rules: &RulesConfig,
-    path: &Path,
-) -> Result<Classification, SortcrabError> {
-    let ext = path
-        .extension()
-        .and_then(|s| s.to_str())
-        .ok_or_else(|| SortcrabError::UnknownExtension(
+pub fn classify_file(rules: &RulesConfig, path: &Path) -> Result<Classification, SortcrabError> {
+    let ext = path.extension().and_then(|s| s.to_str()).ok_or_else(|| {
+        SortcrabError::UnknownExtension(
             path.file_name()
                 .and_then(|n| n.to_str())
                 .unwrap_or("<unknown>")
                 .to_string(),
-        ))?;
+        )
+    })?;
 
     match classify_extension(rules, ext) {
         Some(rule) => Ok(Classification {
