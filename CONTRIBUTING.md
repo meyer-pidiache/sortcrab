@@ -20,6 +20,32 @@ cargo build
 cargo test
 ```
 
+## Git hooks
+
+This project ships custom git hooks under `.githooks/` that run on every commit
+and push:
+
+| Hook | What it does |
+|------|-------------|
+| `pre-commit` | `cargo fmt --check` + `cargo clippy --all-targets -- -D warnings` |
+| `commit-msg` | Validates the commit message follows Conventional Commits |
+| `pre-push` | `cargo test --all-targets` |
+
+Enable them with:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Run the hooks once to verify they work:
+
+```bash
+# Trigger pre-commit and commit-msg hooks
+git commit --allow-empty -m "test: verify hooks" --no-edit
+# Undo the test commit
+git reset --hard HEAD~1
+```
+
 ## Running tests
 
 ```bash
