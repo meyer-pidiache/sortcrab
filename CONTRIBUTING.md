@@ -27,7 +27,7 @@ and push:
 
 | Hook | What it does |
 |------|-------------|
-| `pre-commit` | `cargo fmt --check` + `cargo clippy -- -D warnings` |
+| `pre-commit` | `cargo fmt --check` + `cargo clippy --all-targets -- -D warnings` |
 | `commit-msg` | Validates the commit message follows Conventional Commits |
 | `pre-push` | `cargo test --all-targets` |
 
@@ -43,7 +43,7 @@ Run the hooks once to verify they work:
 # Trigger pre-commit and commit-msg hooks
 git commit --allow-empty -m "test: verify hooks" --no-edit
 # Undo the test commit
-git reset --soft HEAD~1 && git reset
+git reset --hard HEAD~1
 ```
 
 ## Running tests
