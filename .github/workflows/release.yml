@@ -26,11 +26,17 @@ jobs:
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@v1
         with:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
+
+      - uses: taiki-e/setup-cross-toolchain-action@v1
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        with:
+          target: ${{ matrix.target }}
+
       - run: cargo build --release --target ${{ matrix.target }}
 
       - name: Package artifact
@@ -47,7 +53,7 @@ jobs:
           sha256sum "sortcrab-${{ matrix.target }}.tar.gz" | cut -d' ' -f1 > "sortcrab-${{ matrix.target }}.sha256"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sortcrab-${{ matrix.target }}
           path: |
@@ -58,10 +64,10 @@ jobs:
     needs: [plan, build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
 
@@ -107,7 +113,7 @@ jobs:
           end
           RUBYEOF
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: homebrew-formula
           path: sortcrab.rb
@@ -116,8 +122,8 @@ jobs:
     needs: [plan, build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@v1
       - name: Publish to crates.io
         run: cargo publish
         env:
@@ -127,11 +133,11 @@ jobs:
     needs: [plan, build, homebrew, publish]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.plan.outputs.tag }}
           files: artifacts/**/*
