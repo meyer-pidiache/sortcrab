@@ -208,4 +208,3 @@ jobs:
           tag_name: ${{ needs.plan.outputs.tag }}
           files: artifacts/**/*
           generate_release_notes: true
-          draft: true
