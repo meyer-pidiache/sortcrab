@@ -15,6 +15,9 @@ env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: -D warnings
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -32,8 +35,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        toolchain: [stable, beta]
+        include:
+          - os: ubuntu-latest
+            toolchain: stable
+          - os: ubuntu-latest
+            toolchain: beta
+          - os: macos-latest
+            toolchain: stable
+          - os: windows-latest
+            toolchain: stable
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -61,6 +71,23 @@ jobs:
       - uses: codecov/codecov-action@v7
         with:
           file: lcov.info
+
+  features:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: nightly
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-udeps
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo hack check --each-feature --all-targets
+      - run: cargo +nightly udeps --all-features
 
   audit:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
