@@ -5,8 +5,8 @@ pub mod args;
 use std::path::{Path, PathBuf};
 
 use crate::cli::args::{Cli, Commands, ConfigArgs, SortArgs};
-use crate::config::rules::RulesConfig;
 use crate::config::ConfigManager;
+use crate::config::rules::RulesConfig;
 use crate::core::sort_files;
 use crate::error::SortcrabError;
 

@@ -10,7 +10,7 @@ use proptest::prelude::*;
 
 use sortcrab::config::rules::RulesConfig;
 use sortcrab::core::classify::classify_extension;
-use sortcrab::core::mover::{move_file, Classification, MoveOptions};
+use sortcrab::core::mover::{Classification, MoveOptions, move_file};
 use sortcrab::core::semester::semester_from_time;
 
 // ── Date strategy: covers general dates + semester boundaries ────────────────

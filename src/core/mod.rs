@@ -9,7 +9,7 @@ use std::path::Path;
 
 use crate::config::rules::RulesConfig;
 use crate::core::classify::classify_file;
-use crate::core::mover::{move_file, MoveOptions};
+use crate::core::mover::{MoveOptions, move_file};
 use crate::core::semester::semester_from_time;
 use crate::error::SortcrabError;
 
