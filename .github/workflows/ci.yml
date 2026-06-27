@@ -87,7 +87,7 @@ jobs:
           tool: cargo-udeps
       - uses: Swatinem/rust-cache@v2
       - run: cargo hack check --each-feature --all-targets
-      - run: cargo +nightly udeps --all-features
+      - run: cargo +nightly udeps --all-features --all-targets
 
   audit:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
