@@ -1,9 +1,12 @@
-# Release pipeline — triggered manually, reads version from Cargo.toml,
-# builds binaries, publishes to crates.io, creates Homebrew formula,
+# Release pipeline — triggered automatically on push to main when
+# Cargo.toml version changes, or manually via workflow_dispatch.
+# Builds binaries, publishes to crates.io, creates Homebrew formula,
 # and drafts a GitHub Release.
 name: Release
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -13,11 +16,26 @@ jobs:
   plan:
     runs-on: ubuntu-latest
     outputs:
+      skip: ${{ steps.check.outputs.skip }}
       matrix: ${{ steps.plan.outputs.matrix }}
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: check
+        name: Check version and detect if release needed
+        run: |
+          VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          TAG="v$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "push" ] && git fetch origin "refs/tags/$TAG" 2>/dev/null; then
+            echo "Tag $TAG already exists — nothing to release"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - id: version
         name: Read version from Cargo.toml
@@ -32,6 +50,7 @@ jobs:
 
   build:
     needs: [plan]
+    if: needs.plan.outputs.skip != 'true'
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
@@ -74,6 +93,7 @@ jobs:
 
   homebrew:
     needs: [plan, build]
+    if: needs.plan.outputs.skip != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
