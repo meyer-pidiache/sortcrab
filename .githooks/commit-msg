@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Conventional Commits — https://www.conventionalcommits.org/
+# Regex matches:
+#   feat(scope)!: text
+#   fix: text
+#   refactor(core)!: text
+#   etc.
+
+COMMIT_MSG=$(cat "$1")
+
+CONVENTIONAL_RE='^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9._\x2d-]+\))?!?:\ .+'
+
+if ! echo "$COMMIT_MSG" | grep -qE "$CONVENTIONAL_RE"; then
+  echo ""
+  echo "❌ commit-msg: not a valid conventional commit"
+  echo ""
+  echo "  Expected format:"
+  echo "    <type>[optional scope]: <subject>"
+  echo ""
+  echo "  Types: build, chore, ci, docs, feat, fix, perf,"
+  echo "         refactor, revert, style, test"
+  echo ""
+  echo "  Examples:"
+  echo "    feat(cli): add --dry-run flag"
+  echo "    fix(core): handle empty directory"
+  echo "    refactor!: remove deprecated API"
+  echo "    docs: update README with install instructions"
+  echo ""
+  exit 1
+fi

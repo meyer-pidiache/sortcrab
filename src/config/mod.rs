@@ -1,5 +1,7 @@
 // sortcrab — configuration loading, saving, and path resolution
 
+pub mod rules;
+
 #[cfg(test)]
 use std::cell::RefCell;
 use std::path::PathBuf;
@@ -7,7 +9,6 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 use crate::error::SortcrabError;
-use crate::rules::RulesConfig;
 
 #[cfg(test)]
 thread_local! {
@@ -27,7 +28,7 @@ thread_local! {
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SortcrabConfig {
-    pub rules: RulesConfig,
+    pub rules: rules::RulesConfig,
 
     /// Schema version for future migration support.
     #[serde(default = "default_version")]
@@ -41,7 +42,7 @@ fn default_version() -> String {
 impl Default for SortcrabConfig {
     fn default() -> Self {
         SortcrabConfig {
-            rules: RulesConfig::default(),
+            rules: rules::RulesConfig::default(),
             version: default_version(),
         }
     }

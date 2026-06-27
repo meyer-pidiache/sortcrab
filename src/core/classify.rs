@@ -1,8 +1,8 @@
 // sortcrab — file classification
 
+use crate::config::rules::{Rule, RulesConfig};
+use crate::core::mover::Classification;
 use crate::error::SortcrabError;
-use crate::mover::Classification;
-use crate::rules::{Rule, RulesConfig};
 use std::path::Path;
 
 /// Look up a file extension in the rules table.

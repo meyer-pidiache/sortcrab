@@ -3,9 +3,6 @@
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
-use crate::config::ConfigManager;
-use crate::error::SortcrabError;
-
 /// Organizes files into categorized, semester-dated folders.
 #[derive(Parser, Debug)]
 #[command(name = "sortcrab", author, version, about, long_about = None)]
@@ -59,48 +56,4 @@ pub struct ConfigArgs {
     /// Open the configuration file in the system's default editor
     #[arg(long)]
     pub edit: bool,
-}
-
-/// Parse CLI arguments and dispatch to the appropriate command handler.
-///
-/// Called from [`crate::run`] after initial setup.
-pub fn run(cli: Cli) -> Result<(), SortcrabError> {
-    crate::init_logging(cli.verbose, cli.quiet);
-
-    match cli.command {
-        None => {
-            // Default: run sort
-            let args = SortArgs {
-                source: cli.source,
-                target: cli.target,
-            };
-            handle_sort(args)
-        }
-        Some(Commands::Init) => handle_init(),
-        Some(Commands::Config(args)) => handle_config(args),
-    }
-}
-
-fn handle_sort(args: SortArgs) -> Result<(), SortcrabError> {
-    crate::commands::execute_sort(&args)
-}
-
-fn handle_init() -> Result<(), SortcrabError> {
-    tracing::debug!("Initializing default configuration");
-    ConfigManager::create_default()?;
-    println!(
-        "Created default configuration at {:?}",
-        ConfigManager::config_path()?
-    );
-    Ok(())
-}
-
-fn handle_config(args: ConfigArgs) -> Result<(), SortcrabError> {
-    tracing::debug!("Config show={}, edit={}", args.show, args.edit);
-    if args.show {
-        ConfigManager::print()?;
-    } else if args.edit {
-        ConfigManager::edit()?;
-    }
-    Ok(())
 }
