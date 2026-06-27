@@ -1,14 +1,17 @@
-// sortcrab — sort command implementation
+// sortcrab — core domain: classification, moving, sorting, semester logic
+
+pub mod classify;
+pub mod mover;
+pub mod semester;
 
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
-use crate::classify::classify_file;
-use crate::cli::SortArgs;
+use crate::config::rules::RulesConfig;
+use crate::core::classify::classify_file;
+use crate::core::mover::{move_file, MoveOptions};
+use crate::core::semester::semester_from_time;
 use crate::error::SortcrabError;
-use crate::mover::{MoveOptions, move_file};
-use crate::rules::RulesConfig;
-use crate::semester::semester_from_time;
 
 /// Statistics collected during a sort operation.
 #[derive(Debug, Clone, Default)]
@@ -138,65 +141,13 @@ pub fn sort_files(
     Ok(report)
 }
 
-/// Expand a leading tilde `~` in a path to the user's home directory.
-///
-/// This is needed because clap's `default_value = "~"` does not go through
-/// shell expansion — the literal tilde must be resolved programmatically.
-fn resolve_home(path: &Path) -> PathBuf {
-    let s = path.to_string_lossy();
-    if let Some(stripped) = s.strip_prefix("~") {
-        if let Ok(home) = std::env::var("HOME") {
-            let after = stripped.trim_start_matches('/');
-            if after.is_empty() {
-                PathBuf::from(home)
-            } else {
-                PathBuf::from(home).join(after)
-            }
-        } else {
-            path.to_path_buf()
-        }
-    } else {
-        path.to_path_buf()
-    }
-}
-
-/// Execute the `sort` subcommand.
-///
-/// Resolves the target directory (defaulting to the source directory for
-/// in-place organization), loads the rules configuration, calls [`sort_files`],
-/// and prints a human-readable summary.
-pub fn execute_sort(args: &SortArgs) -> Result<(), SortcrabError> {
-    let source = resolve_home(&args.source);
-    let target: PathBuf = args.target.clone().unwrap_or_else(|| source.clone());
-
-    tracing::debug!("Sort source: {:?}, target: {:?}", source, target);
-
-    let rules = RulesConfig::default();
-
-    let report = sort_files(&source, &target, &rules)?;
-
-    println!(
-        "Sorted {} files, skipped {}, {} errors",
-        report.moved, report.skipped, report.errors
-    );
-
-    tracing::info!(
-        "Sort complete — total: {}, moved: {}, skipped: {}, errors: {}",
-        report.total,
-        report.moved,
-        report.skipped,
-        report.errors,
-    );
-
-    Ok(())
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs;
+    use std::path::PathBuf;
     use std::time::SystemTime;
     use tempfile::tempdir;
 

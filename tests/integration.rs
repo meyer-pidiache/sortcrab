@@ -4,9 +4,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
-use sortcrab::commands::sort_files;
-use sortcrab::rules::RulesConfig;
-use sortcrab::semester::semester_from_time;
+use sortcrab::config::rules::RulesConfig;
+use sortcrab::core::semester::semester_from_time;
+use sortcrab::core::sort_files;
 use tempfile::tempdir;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────

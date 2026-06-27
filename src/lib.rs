@@ -1,16 +1,11 @@
 // sortcrab — library root
 
-use clap::Parser;
-
-pub mod classify;
 pub mod cli;
-pub mod commands;
 pub mod config;
+pub mod core;
 pub mod error;
-pub mod mover;
-pub mod rules;
-pub mod semester;
 
+use clap::Parser;
 use tracing_subscriber::EnvFilter;
 
 /// Initialize logging based on verbosity level.
@@ -39,6 +34,6 @@ pub fn init_logging(verbose: bool, quiet: bool) {
 
 /// Entry point for the sortcrab CLI.
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let cli = cli::Cli::parse();
+    let cli = cli::args::Cli::parse();
     cli::run(cli).map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
 }

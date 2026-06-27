@@ -8,10 +8,10 @@ use std::time::SystemTime;
 use chrono::{DateTime, Datelike, Local, NaiveDate, NaiveTime, TimeZone};
 use proptest::prelude::*;
 
-use sortcrab::classify::classify_extension;
-use sortcrab::mover::{Classification, MoveOptions, move_file};
-use sortcrab::rules::RulesConfig;
-use sortcrab::semester::semester_from_time;
+use sortcrab::config::rules::RulesConfig;
+use sortcrab::core::classify::classify_extension;
+use sortcrab::core::mover::{move_file, Classification, MoveOptions};
+use sortcrab::core::semester::semester_from_time;
 
 // ── Date strategy: covers general dates + semester boundaries ────────────────
 
