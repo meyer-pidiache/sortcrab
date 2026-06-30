@@ -1,4 +1,7 @@
-// sortcrab — file moving logic
+//! File moving logic with collision resolution and cross-filesystem support.
+//!
+//! The main entry point is [`move_file`], which moves a single classified file
+//! to its organised destination.
 
 use crate::error::SortcrabError;
 use std::fs;
@@ -6,12 +9,30 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 /// Represents a file classification result.
+///
+/// Returned by [`classify_file`](crate::core::classify::classify_file) and
+/// consumed by [`move_file`].
+///
+/// # Example
+///
+/// ```rust
+/// use sortcrab::core::mover::Classification;
+///
+/// let class = Classification {
+///     category: "Documents".into(),
+///     subcategory: "PDF".into(),
+/// };
+/// assert_eq!(class.category, "Documents");
+/// ```
 pub struct Classification {
     pub category: String,
     pub subcategory: String,
 }
 
-/// Options for moving a file to its organized destination.
+/// Options for moving a file to its organised destination.
+///
+/// Passed to [`move_file`] to describe the source, target, classification,
+/// semester period, and filename.
 pub struct MoveOptions<'a> {
     pub source: &'a Path,
     pub target: &'a Path,
@@ -20,11 +41,12 @@ pub struct MoveOptions<'a> {
     pub filename: &'a str,
 }
 
-/// Move a file to its organized destination.
+/// Move a file to its organised destination.
 ///
-/// Builds the destination path `{target}/{category}/{subcategory}/{semester}/{filename}`,
-/// handles collisions with incrementing suffixes (`file-1.pdf`, `file-2.pdf`, …),
-/// and performs cross-filesystem moves (copy + delete when `rename` returns EXDEV).
+/// Builds the destination path
+/// `{target}/{category}/{subcategory}/{semester}/{filename}`, handles collisions
+/// with incrementing suffixes (`file-1.pdf`, `file-2.pdf`, …), and performs
+/// cross-filesystem moves (copy + delete when `rename` returns `EXDEV`).
 ///
 /// # Skip conditions
 /// - Dotfiles (names starting with `'.'`)
@@ -32,8 +54,28 @@ pub struct MoveOptions<'a> {
 /// - Files already at the destination path (idempotency)
 ///
 /// # Errors
-/// Returns `SortcrabError::Skipped` for files that are deliberately not moved.
-/// Returns `SortcrabError::Io` for filesystem errors.
+/// Returns [`SortcrabError::Skipped`] for files that are deliberately not moved.
+/// Returns [`SortcrabError::Io`] for filesystem errors.
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use sortcrab::core::mover::{Classification, MoveOptions, move_file};
+/// use std::path::Path;
+///
+/// let class = Classification {
+///     category: "Documents".into(),
+///     subcategory: "PDF".into(),
+/// };
+/// let opts = MoveOptions {
+///     source: Path::new("report.pdf"),
+///     target: Path::new("~/Downloads"),
+///     classification: &class,
+///     semester: "2025-I",
+///     filename: "report.pdf",
+/// };
+/// let dest = move_file(&opts).unwrap();
+/// ```
 pub fn move_file(opts: &MoveOptions<'_>) -> Result<PathBuf, SortcrabError> {
     // ── Skip dotfiles ──────────────────────────────────────────────
     if opts.filename.starts_with('.') {

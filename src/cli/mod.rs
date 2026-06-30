@@ -1,4 +1,7 @@
-// sortcrab — CLI dispatch and command handlers
+//! CLI argument parsing and command dispatch.
+//!
+//! This module defines the CLI command structure via [`clap`] (in [`args`])
+//! and implements the handler functions that run each command.
 
 pub mod args;
 
@@ -12,7 +15,10 @@ use crate::error::SortcrabError;
 
 /// Parse CLI arguments and dispatch to the appropriate command handler.
 ///
-/// Called from [`crate::run`] after initial setup.
+/// Called from [`crate::run`] after logging initialisation.
+///
+/// # Errors
+/// Returns a [`SortcrabError`] if the requested command fails.
 pub fn run(cli: Cli) -> Result<(), SortcrabError> {
     crate::init_logging(cli.verbose, cli.quiet);
 
@@ -76,11 +82,28 @@ fn resolve_home(path: &Path) -> PathBuf {
     }
 }
 
-/// Execute the `sort` subcommand.
+/// Execute the sort command.
 ///
 /// Resolves the target directory (defaulting to the source directory for
-/// in-place organization), loads the rules configuration, calls [`sort_files`],
-/// and prints a human-readable summary.
+/// in-place organisation), loads the default rules configuration, calls
+/// [`sort_files`], and prints a human-readable summary.
+///
+/// # Errors
+/// Returns [`SortcrabError::InvalidPath`] if the source directory does not exist.
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use sortcrab::cli::args::SortArgs;
+/// use sortcrab::cli::execute_sort;
+/// use std::path::PathBuf;
+///
+/// let args = SortArgs {
+///     source: PathBuf::from("~/Downloads"),
+///     target: None,
+/// };
+/// execute_sort(&args).unwrap();
+/// ```
 pub fn execute_sort(args: &SortArgs) -> Result<(), SortcrabError> {
     let source = resolve_home(&args.source);
     let target: PathBuf = args.target.clone().unwrap_or_else(|| source.clone());

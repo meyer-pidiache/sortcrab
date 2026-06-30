@@ -1,4 +1,7 @@
-// sortcrab — file classification
+//! File classification by extension.
+//!
+//! Maps file extensions to category/subcategory pairs using the rules
+//! configuration. The main entry point is [`classify_file`].
 
 use crate::config::rules::{Rule, RulesConfig};
 use crate::core::mover::Classification;
@@ -9,6 +12,17 @@ use std::path::Path;
 ///
 /// Normalises the extension to lowercase and strips any leading dot before
 /// performing the lookup.
+///
+/// # Example
+///
+/// ```rust
+/// use sortcrab::config::rules::RulesConfig;
+/// use sortcrab::core::classify::classify_extension;
+///
+/// let rules = RulesConfig::default();
+/// let rule = classify_extension(&rules, "pdf").unwrap();
+/// assert_eq!(rule.category, "Documents");
+/// ```
 pub fn classify_extension<'a>(rules: &'a RulesConfig, extension: &str) -> Option<&'a Rule> {
     let normalized = extension
         .trim()
@@ -28,6 +42,18 @@ pub fn classify_extension<'a>(rules: &'a RulesConfig, extension: &str) -> Option
 /// - The file has no extension (e.g. `"Makefile"`)
 /// - The extension is empty after normalisation
 /// - The extension is not in the rules table
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use sortcrab::config::rules::RulesConfig;
+/// use sortcrab::core::classify::classify_file;
+/// use std::path::Path;
+///
+/// let rules = RulesConfig::default();
+/// let class = classify_file(&rules, Path::new("report.pdf")).unwrap();
+/// assert_eq!(class.category, "Documents");
+/// ```
 pub fn classify_file(rules: &RulesConfig, path: &Path) -> Result<Classification, SortcrabError> {
     let ext = path.extension().and_then(|s| s.to_str()).ok_or_else(|| {
         SortcrabError::UnknownExtension(

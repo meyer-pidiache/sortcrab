@@ -1,9 +1,16 @@
-// sortcrab — CLI argument parsing
+//! CLI argument parsing using [`clap`] derive API.
+//!
+//! Defines the top-level [`Cli`] struct, the [`Commands`] enum for
+//! subcommands, and supporting argument structs.
 
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
-/// Organizes files into categorized, semester-dated folders.
+/// Organises files into categorised, semester-dated folders.
+///
+/// sortcrab scans a source directory, classifies each file by its extension,
+/// and moves it into a structured tree:
+/// `{target}/{category}/{subcategory}/{semester}/{filename}`.
 #[derive(Parser, Debug)]
 #[command(name = "sortcrab", author, version, about, long_about = None)]
 #[command(args_conflicts_with_subcommands = true)]
@@ -12,7 +19,7 @@ pub struct Cli {
     #[arg(short, long, default_value = "~/Downloads")]
     pub source: PathBuf,
 
-    /// Target directory for sorted output (defaults to the source directory for in-place organization)
+    /// Target directory for sorted output (defaults to the source directory for in-place organisation)
     #[arg(short, long)]
     pub target: Option<PathBuf>,
 
@@ -28,11 +35,12 @@ pub struct Cli {
     pub command: Option<Commands>,
 }
 
+/// sortcrab subcommands.
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    /// Create a default configuration file
+    /// Create a default configuration file at `~/.config/sortcrab/config.toml`
     Init,
-    /// View or edit the configuration
+    /// View or edit the sortcrab configuration
     Config(ConfigArgs),
 }
 
@@ -42,7 +50,7 @@ pub struct SortArgs {
     /// Source directory to scan for files
     pub source: PathBuf,
 
-    /// Target directory for sorted output (defaults to the source directory for in-place organization)
+    /// Target directory for sorted output (defaults to source for in-place organisation)
     pub target: Option<PathBuf>,
 }
 

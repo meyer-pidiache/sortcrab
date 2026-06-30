@@ -1,10 +1,26 @@
-// sortcrab — file sorting rules
+//! File sorting rules and extension-to-category mappings.
+//!
+//! [`RulesConfig`] holds the built-in ~80 extension mappings and supports
+//! loading overrides from a TOML file via [`RulesConfig::from_toml`] and
+//! merging via [`RulesConfig::merge`].
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
-/// A single file-type rule: category + optional subcategory.
+/// A single file-type rule specifying the destination category and subcategory.
+///
+/// # Example
+///
+/// ```rust
+/// use sortcrab::config::rules::Rule;
+///
+/// let rule = Rule {
+///     category: "Documents".into(),
+///     subcategory: "PDF".into(),
+/// };
+/// assert_eq!(rule.category, "Documents");
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Rule {
     pub category: String,
@@ -12,6 +28,20 @@ pub struct Rule {
 }
 
 /// Configuration mapping file extensions to sorting rules.
+///
+/// The [`Default`] implementation provides approximately 80 built-in
+/// extension-to-category mappings covering documents, media, archives,
+/// packages, development files, and other common types.
+///
+/// # Example
+///
+/// ```rust
+/// use sortcrab::config::rules::RulesConfig;
+///
+/// let config = RulesConfig::default();
+/// assert!(config.rules.len() >= 45);
+/// assert_eq!(config.rules["pdf"].category, "Documents");
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RulesConfig {
     pub rules: HashMap<String, Rule>,
