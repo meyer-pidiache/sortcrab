@@ -40,6 +40,7 @@ sortcrab follows a domain-module layout under `src/`:
 - Tests are inline (`#[cfg(test)] mod tests`) in each source file
 - Use `tempfile::tempdir()` for isolated filesystem tests
 - Property testing via proptest is preferred for edge-case coverage
+- Run with `cargo nextest` for parallel test execution and better failure reporting
 - Test function names are snake_case and describe the scenario
 - Use helper functions (`setup_source_file`, `classify`, `current_semester`) to reduce boilerplate
 

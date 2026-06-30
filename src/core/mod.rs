@@ -63,7 +63,7 @@ pub struct SortReport {
 /// use std::path::Path;
 ///
 /// let rules = RulesConfig::default();
-/// let report = sort_files(Path::new("~/Downloads"), Path::new("~/Downloads"), &rules)?;
+/// let report = sort_files(Path::new("/tmp/source"), Path::new("/tmp/target"), &rules)?;
 /// println!("Moved {} files", report.moved);
 /// # Ok::<_, sortcrab::error::SortcrabError>(())
 /// ```

@@ -69,7 +69,7 @@ pub struct MoveOptions<'a> {
 /// };
 /// let opts = MoveOptions {
 ///     source: Path::new("report.pdf"),
-///     target: Path::new("~/Downloads"),
+///     target: Path::new("/tmp/Downloads"),
 ///     classification: &class,
 ///     semester: "2025-I",
 ///     filename: "report.pdf",

@@ -59,15 +59,15 @@ based on their modification date:
 
 ```
 ~/Downloads
-├── 2025-2/
+├── 2025-II/
 │   ├── Documents/PDF/report-final.pdf
 │   ├── Media/Images/DSC_001.jpg
 │   └── Development/Rust/main.rs
-├── 2026-1/
+├── 2026-I/
 │   ├── Documents/Word/class_notes.docx
 │   ├── Media/Audio/song.mp3
 │   └── Media/Videos/vacation.mp4
-└── 2026-2/
+└── 2026-II/
     └── Archives/archive.zip
 ```
 
@@ -115,8 +115,11 @@ Windows (PowerShell):
 ```powershell
 curl.exe -LO https://github.com/meyer-pidiache/sortcrab/releases/download/v0.1.1/sortcrab-x86_64-pc-windows-msvc.tar.gz
 tar -xf sortcrab-x86_64-pc-windows-msvc.tar.gz
-move sortcrab.exe C:\Windows\System32\
+New-Item -ItemType Directory -Force $env:LOCALAPPDATA\Programs\sortcrab
+move sortcrab.exe $env:LOCALAPPDATA\Programs\sortcrab\
 ```
+> Add `%LOCALAPPDATA%\Programs\sortcrab\` to your `PATH` to use `sortcrab`
+> from any terminal.
 
 **Option 4 — Build from source**
 ```bash
@@ -134,8 +137,10 @@ PowerShell:
 # Bash
 sortcrab completions bash > ~/.local/share/bash-completion/completions/sortcrab
 
-# Zsh
+# Zsh (macOS — Homebrew path)
 sortcrab completions zsh > /usr/local/share/zsh/site-functions/_sortcrab
+# Zsh (Linux — system path)
+# sortcrab completions zsh > /usr/share/zsh/site-functions/_sortcrab
 
 # Fish
 sortcrab completions fish > ~/.config/fish/completions/sortcrab.fish

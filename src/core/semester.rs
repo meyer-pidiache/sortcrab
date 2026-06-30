@@ -21,7 +21,7 @@ use std::time::SystemTime;
 /// use sortcrab::core::semester::semester_from_time;
 /// use std::time::SystemTime;
 ///
-/// // January 2025 → "2025-I"
+/// // Unix epoch (Jan 1 1970) → "1970-I" (in UTC-aligned timezones)
 /// let jan = semester_from_time(&SystemTime::UNIX_EPOCH);
 /// // Note: actual value depends on timezone
 /// ```
