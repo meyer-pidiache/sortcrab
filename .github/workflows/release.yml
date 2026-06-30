@@ -160,7 +160,7 @@ jobs:
           cp sortcrab.rb tap/Formula/sortcrab.rb
           cd tap
           git config user.name "sortcrab release bot"
-          git config user.email "meyer-pidiache@users.noreply.github.com"
+          git config user.email "109826392+meyer-pidiache@users.noreply.github.com"
           if git diff --quiet; then
             echo "No changes to formula — tap is already up-to-date"
           else
