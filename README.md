@@ -5,6 +5,72 @@ Organize your files into categorized, semester-dated folders.
 sortcrab scans a source directory, classifies each file by its extension, and moves
 it into a structured destination tree: `{category}/{subcategory}/{semester}/{filename}`.
 
+## What it looks like
+
+Before — a chaotic downloads folder:
+
+```
+~/Downloads
+├── report-final.pdf
+├── DSC_001.jpg
+├── DSC_002.jpg
+├── homework_math.pdf
+├── class_notes.docx
+├── vacation.mp4
+├── screenshot.png
+├── song.mp3
+├── budget.xlsx
+├── archive.zip
+├── main.rs
+└── node_modules.zip
+```
+
+After — organized by category and subcategory:
+
+```
+~/Downloads
+├── Documents/
+│   ├── PDF/
+│   │   ├── report-final.pdf
+│   │   └── homework_math.pdf
+│   ├── Word/
+│   │   └── class_notes.docx
+│   └── Spreadsheets/
+│       └── budget.xlsx
+├── Media/
+│   ├── Images/
+│   │   ├── DSC_001.jpg
+│   │   ├── DSC_002.jpg
+│   │   └── screenshot.png
+│   ├── Audio/
+│   │   └── song.mp3
+│   └── Videos/
+│       └── vacation.mp4
+├── Archives/
+│   ├── archive.zip
+│   └── node_modules.zip
+└── Development/
+    └── Rust/
+        └── main.rs
+```
+
+In semester mode, files are additionally grouped by academic semester
+based on their modification date:
+
+```
+~/Downloads
+├── 2025-2/
+│   ├── Documents/PDF/report-final.pdf
+│   ├── Media/Images/DSC_001.jpg
+│   └── Development/Rust/main.rs
+├── 2026-1/
+│   ├── Documents/Word/class_notes.docx
+│   ├── Media/Audio/song.mp3
+│   └── Media/Videos/vacation.mp4
+└── 2026-2/
+    └── Archives/archive.zip
+```
+
 ## Quick start
 
 ### Install
@@ -81,25 +147,6 @@ sortcrab completions powershell >> $PROFILE
 > **Note:** sortcrab is not yet published to crates.io or Homebrew core.
 > The formulas and packages above refer to the project's GitHub Releases
 > and custom Homebrew tap.
-
-### Usage
-
-```bash
-# Sort your Downloads folder in-place (default)
-sortcrab
-
-# Sort another folder in-place
-sortcrab --source ~/Documents
-
-# Sort to a different target directory
-sortcrab --source ~/Downloads --target ~/Other
-
-# Initialize default configuration
-sortcrab init
-
-# View current configuration
-sortcrab config --show
-```
 
 ## Usage
 
