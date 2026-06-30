@@ -150,6 +150,25 @@ jobs:
           name: homebrew-formula
           path: sortcrab.rb
 
+      - name: Publish formula to homebrew-sortcrab tap
+        env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          TAP_REPO="https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/meyer-pidiache/homebrew-sortcrab.git"
+          git clone --depth 1 "$TAP_REPO" tap
+          mkdir -p tap/Formula
+          cp sortcrab.rb tap/Formula/sortcrab.rb
+          cd tap
+          git config user.name "sortcrab release bot"
+          git config user.email "meyer-pidiache@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No changes to formula — tap is already up-to-date"
+          else
+            git add Formula/sortcrab.rb
+            git commit -m "sortcrab ${{ needs.plan.outputs.tag }}"
+            git push
+          fi
+
   publish:
     needs: [plan, build]
     runs-on: ubuntu-latest
