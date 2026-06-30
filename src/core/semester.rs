@@ -1,16 +1,30 @@
-// sortcrab — semester-based directory organization
+//! Semester computation from file modification timestamps.
+//!
+//! Maps a file's modification time to an academic semester string used as
+//! a directory component in the output tree.
 
 use chrono::{DateTime, Datelike, Local, TimeZone};
 use std::time::SystemTime;
 
-/// Given a file's modification time, returns the semester string.
+/// Compute the academic semester from a file's modification time.
 ///
-/// Semesters: January–June → `"{year}-I"`, July–December → `"{year}-II"`.
+/// Returns `"{year}-I"` for January–June and `"{year}-II"` for July–December.
 /// Uses the local system timezone for date conversion.
 ///
 /// # Fallback
 /// If `modified` is before the Unix epoch (`duration_since` fails), the
 /// current local date is used as a fallback.
+///
+/// # Example
+///
+/// ```rust
+/// use sortcrab::core::semester::semester_from_time;
+/// use std::time::SystemTime;
+///
+/// // Unix epoch (Jan 1 1970) → "1970-I" (in UTC-aligned timezones)
+/// let jan = semester_from_time(&SystemTime::UNIX_EPOCH);
+/// // Note: actual value depends on timezone
+/// ```
 pub fn semester_from_time(modified: &SystemTime) -> String {
     let datetime: DateTime<Local> = match modified.duration_since(std::time::UNIX_EPOCH) {
         Ok(duration) => Local

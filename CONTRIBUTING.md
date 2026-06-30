@@ -94,6 +94,28 @@ imperative mood. For example: "Add dry-run mode" not "Added dry-run mode".
 5. Push your branch and open a PR against `main`.
 6. Describe what the PR does and why. Link related issues if applicable.
 
+## Pull request checklist
+
+Before opening a PR, verify:
+
+- [ ] `cargo test` passes
+- [ ] `cargo clippy --all-targets -- -D warnings` passes
+- [ ] `cargo fmt --check` passes
+- [ ] Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
+- [ ] Changes are scoped to a single logical unit
+
+A PR template is available at `.github/PULL_REQUEST_TEMPLATE.md` — it will be
+pre-filled when you open a pull request on GitHub.
+
+## Issue labels
+
+| Label | Description |
+|-------|-------------|
+| `bug` | Something isn't working |
+| `documentation` | Improvements or additions to documentation |
+| `enhancement` | New feature or improvement |
+| `type:refactor` | Code change that neither fixes a bug nor adds a feature |
+
 ## What to work on
 
 Check the issue tracker for open bugs and feature requests. If you want to work

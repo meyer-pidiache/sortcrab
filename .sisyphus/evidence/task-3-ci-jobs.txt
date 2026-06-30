@@ -1,2 +1,0 @@
-Jobs: ['lint', 'test', 'coverage', 'audit', 'deny']
-Job count: 5

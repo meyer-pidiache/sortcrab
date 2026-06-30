@@ -1,31 +1,66 @@
-// sortcrab — error types
+//! Error types for sortcrab operations.
+//!
+//! All fallible operations in sortcrab return [`SortcrabError`], which
+//! provides typed variants for I/O, configuration, classification, and
+//! other domain-specific failures.
 
 use std::path::PathBuf;
 use thiserror::Error;
 
+/// Unified error type for sortcrab operations.
+///
+/// Each variant maps to a distinct failure domain:
+///
+/// | Variant | When it occurs |
+/// |---------|----------------|
+/// | [`Io`](SortcrabError::Io) | Filesystem read/write failures |
+/// | [`TomlParse`](SortcrabError::TomlParse) | Invalid configuration TOML |
+/// | [`Config`](SortcrabError::Config) | Missing or misconfigured settings |
+/// | [`InvalidPath`](SortcrabError::InvalidPath) | Source path is not a directory |
+/// | [`Semester`](SortcrabError::Semester) | Date/time computation failure |
+/// | [`UnknownExtension`](SortcrabError::UnknownExtension) | File extension not in rules |
+/// | [`Skipped`](SortcrabError::Skipped) | File intentionally not moved |
+/// | [`Other`](SortcrabError::Other) | Catch-all for miscellaneous errors |
+///
+/// # Example
+///
+/// ```rust
+/// use sortcrab::error::SortcrabError;
+///
+/// let err = SortcrabError::Config("missing field 'root'".into());
+/// assert_eq!(err.to_string(), "Config error: missing field 'root'");
+/// ```
 #[derive(Error, Debug)]
 pub enum SortcrabError {
+    /// Wraps a standard [`std::io::Error`].
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
 
+    /// Wraps a [`toml::de::Error`] from parsing configuration files.
     #[error("TOML parse error: {0}")]
     TomlParse(#[from] toml::de::Error),
 
+    /// A configuration-related error with a descriptive message.
     #[error("Config error: {0}")]
     Config(String),
 
+    /// The supplied path is not valid for the requested operation.
     #[error("Invalid path: {0}")]
     InvalidPath(PathBuf),
 
+    /// An error computing the academic semester from a timestamp.
     #[error("Semester error: {0}")]
     Semester(String),
 
+    /// The file's extension is not mapped in the rules table.
     #[error("Unknown extension: {0}")]
     UnknownExtension(String),
 
+    /// The file was deliberately skipped (dotfile, symlink, already organised).
     #[error("Skipped: {0}")]
     Skipped(String),
 
+    /// Catch-all variant for miscellaneous error messages.
     #[error("{0}")]
     Other(String),
 }

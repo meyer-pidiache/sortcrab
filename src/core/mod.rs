@@ -1,4 +1,7 @@
-// sortcrab — core domain: classification, moving, sorting, semester logic
+//! Core domain logic: classification, file moving, semester computation, and orchestration.
+//!
+//! The main entry point is [`sort_files`], which ties together the
+//! classification, semester, and moving subsystems.
 
 pub mod classify;
 pub mod mover;
@@ -14,6 +17,20 @@ use crate::core::semester::semester_from_time;
 use crate::error::SortcrabError;
 
 /// Statistics collected during a sort operation.
+///
+/// # Example
+///
+/// ```rust
+/// use sortcrab::core::SortReport;
+///
+/// let report = SortReport {
+///     total: 10,
+///     moved: 8,
+///     skipped: 1,
+///     errors: 1,
+/// };
+/// assert_eq!(report.moved + report.skipped + report.errors, report.total);
+/// ```
 #[derive(Debug, Clone, Default)]
 pub struct SortReport {
     /// Total number of files processed (excludes directories).
@@ -34,6 +51,22 @@ pub struct SortReport {
 /// Per-file errors are collected in the returned [`SortReport`] — the function
 /// never fails on individual items. If the source path is not a directory an
 /// [`Err`] is returned immediately.
+///
+/// # Errors
+/// Returns [`SortcrabError::InvalidPath`] if `source` is not a directory.
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use sortcrab::core::sort_files;
+/// use sortcrab::config::rules::RulesConfig;
+/// use std::path::Path;
+///
+/// let rules = RulesConfig::default();
+/// let report = sort_files(Path::new("/tmp/source"), Path::new("/tmp/target"), &rules)?;
+/// println!("Moved {} files", report.moved);
+/// # Ok::<_, sortcrab::error::SortcrabError>(())
+/// ```
 pub fn sort_files(
     source: &Path,
     target: &Path,

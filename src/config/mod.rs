@@ -1,4 +1,8 @@
-// sortcrab — configuration loading, saving, and path resolution
+//! Configuration loading, saving, and path resolution.
+//!
+//! sortcrab uses a TOML configuration file at `~/.config/sortcrab/config.toml`.
+//! The [`ConfigManager`] type provides stateless associated functions for
+//! loading, creating, printing, and editing the config file.
 
 pub mod rules;
 
@@ -13,18 +17,30 @@ use crate::error::SortcrabError;
 #[cfg(test)]
 thread_local! {
     /// Override for the config directory during tests.
-    /// When set, `config_path()` and `config_dir()` return paths under this directory
-    /// instead of the real user config directory.
+    /// When set, [`config_path`](ConfigManager::config_path) and
+    /// [`config_dir`](ConfigManager::config_dir) return paths under this
+    /// directory instead of the real user config directory.
     static TEST_CONFIG_DIR: RefCell<Option<PathBuf>> = const { RefCell::new(None) };
 }
 
 /// Top-level sortcrab configuration persisted as TOML.
+///
+/// # Example TOML
 ///
 /// ```toml
 /// version = "1"
 ///
 /// [rules]
 /// "pdf" = { category = "Documents", subcategory = "PDF" }
+/// ```
+///
+/// # Example
+///
+/// ```rust
+/// use sortcrab::config::SortcrabConfig;
+///
+/// let config = SortcrabConfig::default();
+/// assert_eq!(config.version, "1");
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SortcrabConfig {

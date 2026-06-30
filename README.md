@@ -5,6 +5,72 @@ Organize your files into categorized, semester-dated folders.
 sortcrab scans a source directory, classifies each file by its extension, and moves
 it into a structured destination tree: `{category}/{subcategory}/{semester}/{filename}`.
 
+## What it looks like
+
+Before — a chaotic downloads folder:
+
+```
+~/Downloads
+├── report-final.pdf
+├── DSC_001.jpg
+├── DSC_002.jpg
+├── homework_math.pdf
+├── class_notes.docx
+├── vacation.mp4
+├── screenshot.png
+├── song.mp3
+├── budget.xlsx
+├── archive.zip
+├── main.rs
+└── node_modules.zip
+```
+
+After — organized by category and subcategory:
+
+```
+~/Downloads
+├── Documents/
+│   ├── PDF/
+│   │   ├── report-final.pdf
+│   │   └── homework_math.pdf
+│   ├── Word/
+│   │   └── class_notes.docx
+│   └── Spreadsheets/
+│       └── budget.xlsx
+├── Media/
+│   ├── Images/
+│   │   ├── DSC_001.jpg
+│   │   ├── DSC_002.jpg
+│   │   └── screenshot.png
+│   ├── Audio/
+│   │   └── song.mp3
+│   └── Videos/
+│       └── vacation.mp4
+├── Archives/
+│   ├── archive.zip
+│   └── node_modules.zip
+└── Development/
+    └── Rust/
+        └── main.rs
+```
+
+In semester mode, files are additionally grouped by academic semester
+based on their modification date:
+
+```
+~/Downloads
+├── 2025-II/
+│   ├── Documents/PDF/report-final.pdf
+│   ├── Media/Images/DSC_001.jpg
+│   └── Development/Rust/main.rs
+├── 2026-I/
+│   ├── Documents/Word/class_notes.docx
+│   ├── Media/Audio/song.mp3
+│   └── Media/Videos/vacation.mp4
+└── 2026-II/
+    └── Archives/archive.zip
+```
+
 ## Quick start
 
 ### Install
@@ -14,15 +80,46 @@ it into a structured destination tree: `{category}/{subcategory}/{semester}/{fil
 brew install meyer-pidiache/sortcrab/sortcrab
 ```
 
-**Option 2 — Pre-built binary**
-Download the latest tarball for your platform from
-[GitHub Releases](https://github.com/meyer-pidiache/sortcrab/releases/latest),
-then extract and place `sortcrab` in your `$PATH`.
-
-**Option 3 — Cargo**
+**Option 2 — Cargo**
 ```bash
 cargo install sortcrab
 ```
+
+**Option 3 — Direct download**
+
+Linux (x86_64):
+```bash
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-x86_64-unknown-linux-gnu.tar.gz | tar xz
+sudo mv sortcrab /usr/local/bin/
+```
+
+Linux (aarch64):
+```bash
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-aarch64-unknown-linux-gnu.tar.gz | tar xz
+sudo mv sortcrab /usr/local/bin/
+```
+
+macOS (Apple Silicon):
+```bash
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-aarch64-apple-darwin.tar.gz | tar xz
+sudo mv sortcrab /usr/local/bin/
+```
+
+macOS (Intel):
+```bash
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-x86_64-apple-darwin.tar.gz | tar xz
+sudo mv sortcrab /usr/local/bin/
+```
+
+Windows (PowerShell):
+```powershell
+curl.exe -LO https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-x86_64-pc-windows-msvc.tar.gz
+tar -xf sortcrab-x86_64-pc-windows-msvc.tar.gz
+New-Item -ItemType Directory -Force $env:LOCALAPPDATA\Programs\sortcrab
+move sortcrab.exe $env:LOCALAPPDATA\Programs\sortcrab\
+```
+> Add `%LOCALAPPDATA%\Programs\sortcrab\` to your `PATH` to use `sortcrab`
+> from any terminal.
 
 **Option 4 — Build from source**
 ```bash
@@ -31,24 +128,27 @@ cd sortcrab
 cargo install --path .
 ```
 
-### Usage
+**Shell completions**
+
+sortcrab can generate shell completion scripts for bash, zsh, fish, and
+PowerShell:
 
 ```bash
-# Sort your Downloads folder in-place (default)
-sortcrab
+# Bash
+sortcrab completions bash > ~/.local/share/bash-completion/completions/sortcrab
 
-# Sort another folder in-place
-sortcrab --source ~/Documents
+# Zsh (macOS — Homebrew path)
+sortcrab completions zsh > /usr/local/share/zsh/site-functions/_sortcrab
+# Zsh (Linux — system path)
+# sortcrab completions zsh > /usr/share/zsh/site-functions/_sortcrab
 
-# Sort to a different target directory
-sortcrab --source ~/Downloads --target ~/Other
+# Fish
+sortcrab completions fish > ~/.config/fish/completions/sortcrab.fish
 
-# Initialize default configuration
-sortcrab init
-
-# View current configuration
-sortcrab config --show
+# PowerShell
+sortcrab completions powershell >> $PROFILE
 ```
+
 
 ## Usage
 
