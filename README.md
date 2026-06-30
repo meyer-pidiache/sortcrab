@@ -14,14 +14,42 @@ it into a structured destination tree: `{category}/{subcategory}/{semester}/{fil
 brew install meyer-pidiache/sortcrab/sortcrab
 ```
 
-**Option 2 — Pre-built binary**
-Download the latest tarball for your platform from
-[GitHub Releases](https://github.com/meyer-pidiache/sortcrab/releases/latest),
-then extract and place `sortcrab` in your `$PATH`.
-
-**Option 3 — Cargo**
+**Option 2 — Cargo**
 ```bash
 cargo install sortcrab
+```
+
+**Option 3 — Direct download**
+
+Linux (x86_64):
+```bash
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/download/v0.1.1/sortcrab-x86_64-unknown-linux-gnu.tar.gz | tar xz
+sudo mv sortcrab /usr/local/bin/
+```
+
+Linux (aarch64):
+```bash
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/download/v0.1.1/sortcrab-aarch64-unknown-linux-gnu.tar.gz | tar xz
+sudo mv sortcrab /usr/local/bin/
+```
+
+macOS (Apple Silicon):
+```bash
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/download/v0.1.1/sortcrab-aarch64-apple-darwin.tar.gz | tar xz
+sudo mv sortcrab /usr/local/bin/
+```
+
+macOS (Intel):
+```bash
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/download/v0.1.1/sortcrab-x86_64-apple-darwin.tar.gz | tar xz
+sudo mv sortcrab /usr/local/bin/
+```
+
+Windows (PowerShell):
+```powershell
+curl.exe -LO https://github.com/meyer-pidiache/sortcrab/releases/download/v0.1.1/sortcrab-x86_64-pc-windows-msvc.tar.gz
+tar -xf sortcrab-x86_64-pc-windows-msvc.tar.gz
+move sortcrab.exe C:\Windows\System32\
 ```
 
 **Option 4 — Build from source**
@@ -30,6 +58,29 @@ git clone https://github.com/meyer-pidiache/sortcrab.git
 cd sortcrab
 cargo install --path .
 ```
+
+**Shell completions**
+
+sortcrab can generate shell completion scripts for bash, zsh, fish, and
+PowerShell:
+
+```bash
+# Bash
+sortcrab completions bash > ~/.local/share/bash-completion/completions/sortcrab
+
+# Zsh
+sortcrab completions zsh > /usr/local/share/zsh/site-functions/_sortcrab
+
+# Fish
+sortcrab completions fish > ~/.config/fish/completions/sortcrab.fish
+
+# PowerShell
+sortcrab completions powershell >> $PROFILE
+```
+
+> **Note:** sortcrab is not yet published to crates.io or Homebrew core.
+> The formulas and packages above refer to the project's GitHub Releases
+> and custom Homebrew tap.
 
 ### Usage
 
