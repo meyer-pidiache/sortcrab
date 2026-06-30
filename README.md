@@ -89,31 +89,31 @@ cargo install sortcrab
 
 Linux (x86_64):
 ```bash
-curl -L https://github.com/meyer-pidiache/sortcrab/releases/download/v0.1.1/sortcrab-x86_64-unknown-linux-gnu.tar.gz | tar xz
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-x86_64-unknown-linux-gnu.tar.gz | tar xz
 sudo mv sortcrab /usr/local/bin/
 ```
 
 Linux (aarch64):
 ```bash
-curl -L https://github.com/meyer-pidiache/sortcrab/releases/download/v0.1.1/sortcrab-aarch64-unknown-linux-gnu.tar.gz | tar xz
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-aarch64-unknown-linux-gnu.tar.gz | tar xz
 sudo mv sortcrab /usr/local/bin/
 ```
 
 macOS (Apple Silicon):
 ```bash
-curl -L https://github.com/meyer-pidiache/sortcrab/releases/download/v0.1.1/sortcrab-aarch64-apple-darwin.tar.gz | tar xz
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-aarch64-apple-darwin.tar.gz | tar xz
 sudo mv sortcrab /usr/local/bin/
 ```
 
 macOS (Intel):
 ```bash
-curl -L https://github.com/meyer-pidiache/sortcrab/releases/download/v0.1.1/sortcrab-x86_64-apple-darwin.tar.gz | tar xz
+curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-x86_64-apple-darwin.tar.gz | tar xz
 sudo mv sortcrab /usr/local/bin/
 ```
 
 Windows (PowerShell):
 ```powershell
-curl.exe -LO https://github.com/meyer-pidiache/sortcrab/releases/download/v0.1.1/sortcrab-x86_64-pc-windows-msvc.tar.gz
+curl.exe -LO https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-x86_64-pc-windows-msvc.tar.gz
 tar -xf sortcrab-x86_64-pc-windows-msvc.tar.gz
 New-Item -ItemType Directory -Force $env:LOCALAPPDATA\Programs\sortcrab
 move sortcrab.exe $env:LOCALAPPDATA\Programs\sortcrab\
@@ -149,9 +149,6 @@ sortcrab completions fish > ~/.config/fish/completions/sortcrab.fish
 sortcrab completions powershell >> $PROFILE
 ```
 
-> **Note:** sortcrab is not yet published to crates.io or Homebrew core.
-> The formulas and packages above refer to the project's GitHub Releases
-> and custom Homebrew tap.
 
 ## Usage
 
