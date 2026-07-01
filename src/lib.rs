@@ -51,7 +51,6 @@ pub fn init_logging(verbose: bool, quiet: bool) {
     let _ = tracing_subscriber::fmt()
         .with_env_filter(filter)
         .with_target(true)
-        .with_file(true)
         .with_line_number(true)
         .try_init();
 }
