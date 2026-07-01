@@ -119,7 +119,6 @@ mod tests {
     #[test]
     fn test_from_toml_parses() {
         let toml_str = r#"
-[rules]
 "pdf" = { category = "Documents", subcategory = "PDF" }
 "mp3" = { category = "Media", subcategory = "Audio" }
 "#;
