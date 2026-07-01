@@ -121,6 +121,13 @@ pub fn sort_files(
             }
         };
 
+        // ── Skip dotfiles (applies to both dry-run and real mode) ──
+        if filename.starts_with('.') {
+            tracing::debug!("Skipping dotfile: {}", path.display());
+            report.skipped += 1;
+            continue;
+        }
+
         let classification = match classify_file(rules, &path) {
             Ok(c) => c,
             Err(e) => {
@@ -166,13 +173,6 @@ pub fn sort_files(
         } else {
             String::new()
         };
-
-        // ── Skip dotfiles (applies to both dry-run and real mode) ──
-        if filename.starts_with('.') {
-            tracing::debug!("Skipping dotfile: {}", path.display());
-            report.skipped += 1;
-            continue;
-        }
 
         // ── Idempotency check (applies to both dry-run and real mode) ──
         let dest_dir = target
