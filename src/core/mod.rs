@@ -10,10 +10,11 @@ pub mod semester;
 use std::fs;
 use std::path::Path;
 
+use crate::config::SemesterConfig;
 use crate::config::rules::RulesConfig;
 use crate::core::classify::classify_file;
 use crate::core::mover::{MoveOptions, move_file};
-use crate::core::semester::semester_from_time;
+use crate::core::semester::semester_label;
 use crate::error::SortcrabError;
 
 /// Statistics collected during a sort operation.
@@ -47,8 +48,9 @@ pub struct SortReport {
 /// the file's modification time, and move it into
 /// `{target}/{category}/{subcategory}/{semester}/{filename}`.
 ///
-/// When `semester_enabled` is `false`, the semester directory component is
-/// omitted from the destination path.
+/// When `semester_cfg.enabled` is `false`, the semester directory component is
+/// omitted from the destination path.  [`SemesterConfig`] also controls the
+/// period length and folder-name template.
 ///
 /// When `dry_run` is `true`, no files are actually moved — the intended
 /// destinations are logged via `tracing::info!`.
@@ -66,10 +68,12 @@ pub struct SortReport {
 /// ```rust,no_run
 /// use sortcrab::core::sort_files;
 /// use sortcrab::config::rules::RulesConfig;
+/// use sortcrab::config::SemesterConfig;
 /// use std::path::Path;
 ///
 /// let rules = RulesConfig::default();
-/// let report = sort_files(Path::new("/tmp/source"), Path::new("/tmp/target"), &rules, false, true)?;
+/// let semester = SemesterConfig::default();
+/// let report = sort_files(Path::new("/tmp/source"), Path::new("/tmp/target"), &rules, false, &semester)?;
 /// println!("Moved {} files", report.moved);
 /// # Ok::<_, sortcrab::error::SortcrabError>(())
 /// ```
@@ -78,7 +82,7 @@ pub fn sort_files(
     target: &Path,
     rules: &RulesConfig,
     dry_run: bool,
-    semester_enabled: bool,
+    semester_cfg: &SemesterConfig,
 ) -> Result<SortReport, SortcrabError> {
     if !source.is_dir() {
         return Err(SortcrabError::InvalidPath(source.to_path_buf()));
@@ -153,17 +157,38 @@ pub fn sort_files(
             }
         };
 
-        let semester = if semester_enabled {
-            semester_from_time(&modified)
+        let semester = if semester_cfg.enabled {
+            semester_label(
+                &modified,
+                semester_cfg.months_per_period,
+                &semester_cfg.folder_format,
+            )
         } else {
             String::new()
         };
 
+        // ── Skip dotfiles (applies to both dry-run and real mode) ──
+        if filename.starts_with('.') {
+            tracing::debug!("Skipping dotfile: {}", path.display());
+            report.skipped += 1;
+            continue;
+        }
+
+        // ── Idempotency check (applies to both dry-run and real mode) ──
+        let dest_dir = target
+            .join(&classification.category)
+            .join(&classification.subcategory)
+            .join(&semester);
+        if let Ok(dest_canonical) = std::fs::canonicalize(&dest_dir)
+            && let Ok(source_canonical) = std::fs::canonicalize(&path)
+            && source_canonical.starts_with(&dest_canonical)
+        {
+            tracing::debug!("Already organised: {}", path.display());
+            report.skipped += 1;
+            continue;
+        }
+
         if dry_run {
-            let dest_dir = target
-                .join(&classification.category)
-                .join(&classification.subcategory)
-                .join(&semester);
             let dest = dest_dir.join(&filename);
             tracing::info!("Would move {} -> {}", path.display(), dest.display());
             report.moved += 1;
@@ -201,6 +226,7 @@ pub fn sort_files(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::config::SemesterConfig;
     use std::fs;
     use std::path::PathBuf;
     use std::time::SystemTime;
@@ -212,8 +238,19 @@ mod tests {
         path
     }
 
+    fn default_semester() -> SemesterConfig {
+        SemesterConfig::default()
+    }
+
+    fn disabled_semester() -> SemesterConfig {
+        SemesterConfig {
+            enabled: false,
+            ..SemesterConfig::default()
+        }
+    }
+
     fn current_semester() -> String {
-        semester_from_time(&SystemTime::now())
+        semester_label(&SystemTime::now(), 6, "{year}-{roman}")
     }
 
     fn has_file_under(base: &Path, name: &str) -> bool {
@@ -240,7 +277,8 @@ mod tests {
         setup_source_file(src.path(), "main.rs", b"fn main() {}");
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
+        let report =
+            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
 
         assert_eq!(report.total, 3);
         assert_eq!(report.moved, 3);
@@ -270,7 +308,8 @@ mod tests {
         setup_source_file(src.path(), "report.pdf", b"pdf content");
 
         let rules = RulesConfig::default();
-        let _report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
+        let _report =
+            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
 
         let sem = current_semester();
         let expected = tgt.path().join(format!("Documents/PDF/{sem}/report.pdf"));
@@ -285,7 +324,8 @@ mod tests {
         setup_source_file(src.path(), "report.pdf", b"pdf content");
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false, false).unwrap();
+        let report =
+            sort_files(src.path(), tgt.path(), &rules, false, &disabled_semester()).unwrap();
 
         assert_eq!(report.total, 1);
         assert_eq!(report.moved, 1);
@@ -305,7 +345,8 @@ mod tests {
         let tgt = tempdir().unwrap();
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
+        let report =
+            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
 
         assert_eq!(report.total, 0);
         assert_eq!(report.moved, 0);
@@ -322,7 +363,8 @@ mod tests {
         setup_source_file(src.path(), "visible.pdf", b"visible");
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
+        let report =
+            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
 
         assert_eq!(report.total, 2);
         assert_eq!(report.moved, 1);
@@ -340,7 +382,8 @@ mod tests {
         setup_source_file(src.path(), "data.xyz123", b"unknown");
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
+        let report =
+            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
 
         assert_eq!(report.total, 1);
         assert_eq!(report.moved, 0);
@@ -373,7 +416,8 @@ mod tests {
         );
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
+        let report =
+            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
 
         // On unix the symlink is present so both entries are counted;
         // on non-unix only real.pdf exists.
@@ -414,7 +458,7 @@ mod tests {
         let file = setup_source_file(src.path(), "file.pdf", b"x");
 
         let rules = RulesConfig::default();
-        let result = sort_files(&file, src.path(), &rules, false, true);
+        let result = sort_files(&file, src.path(), &rules, false, &default_semester());
 
         assert!(result.is_err());
         match result.unwrap_err() {
@@ -437,7 +481,8 @@ mod tests {
         setup_source_file(src.path(), "song.mp3", b"mp3");
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
+        let report =
+            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
 
         assert_eq!(report.total, 4);
         assert_eq!(report.moved, 2); // doc.pdf, song.mp3
@@ -446,5 +491,67 @@ mod tests {
 
         // Source directory should still exist (we never remove it).
         assert!(src.path().join("subdir").is_dir());
+    }
+
+    // ── Dry run ─────────────────────────────────────────────────────
+
+    #[test]
+    fn test_dry_run_basic() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        setup_source_file(src.path(), "doc.pdf", b"pdf");
+        setup_source_file(src.path(), "song.mp3", b"mp3");
+
+        let rules = RulesConfig::default();
+        let report = sort_files(src.path(), tgt.path(), &rules, true, &default_semester()).unwrap();
+
+        // All files counted, sources must still exist
+        assert_eq!(report.total, 2);
+        assert_eq!(report.moved, 2);
+        assert_eq!(report.skipped, 0);
+        assert_eq!(report.errors, 0);
+
+        assert!(src.path().join("doc.pdf").exists());
+        assert!(src.path().join("song.mp3").exists());
+    }
+
+    #[test]
+    fn test_dry_run_respects_dotfiles() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        setup_source_file(src.path(), ".hidden.txt", b"secret");
+        setup_source_file(src.path(), "visible.pdf", b"visible");
+
+        let rules = RulesConfig::default();
+        let report = sort_files(src.path(), tgt.path(), &rules, true, &default_semester()).unwrap();
+
+        // Dotfile is skipped even in dry-run mode
+        assert_eq!(report.total, 2);
+        assert_eq!(report.moved, 1);
+        assert_eq!(report.skipped, 1);
+        assert_eq!(report.errors, 0);
+
+        // Both files still exist
+        assert!(src.path().join(".hidden.txt").exists());
+        assert!(src.path().join("visible.pdf").exists());
+    }
+
+    #[test]
+    fn test_dry_no_semester() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        setup_source_file(src.path(), "doc.pdf", b"pdf");
+
+        let rules = RulesConfig::default();
+        let report =
+            sort_files(src.path(), tgt.path(), &rules, true, &disabled_semester()).unwrap();
+
+        assert_eq!(report.total, 1);
+        assert_eq!(report.moved, 1);
+        // No semester dir in dry-run output
+        assert!(src.path().join("doc.pdf").exists());
     }
 }

@@ -10,15 +10,17 @@
 //! ```rust,no_run
 //! use sortcrab::core::sort_files;
 //! use sortcrab::config::rules::RulesConfig;
+//! use sortcrab::config::SemesterConfig;
 //! use std::path::Path;
 //!
 //! let rules = RulesConfig::default();
+//! let semester = SemesterConfig::default();
 //! let report = sort_files(
 //!     Path::new("/path/to/source"),
 //!     Path::new("/path/to/target"),
 //!     &rules,
 //!     false,
-//!     true,
+//!     &semester,
 //! )?;
 //! println!("Moved {} files", report.moved);
 //! # Ok::<_, sortcrab::error::SortcrabError>(())
