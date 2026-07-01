@@ -161,12 +161,12 @@ jobs:
           cd tap
           git config user.name "sortcrab release bot"
           git config user.email "109826392+meyer-pidiache@users.noreply.github.com"
-          if git diff --quiet; then
-            echo "No changes to formula — tap is already up-to-date"
-          else
-            git add Formula/sortcrab.rb
+          git add Formula/sortcrab.rb
+          if ! git diff --cached --quiet; then
             git commit -m "sortcrab ${{ needs.plan.outputs.tag }}"
             git push
+          else
+            echo "No changes to formula — tap is already up-to-date"
           fi
 
   publish:
