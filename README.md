@@ -9,7 +9,7 @@ it into a structured destination tree: `{category}/{subcategory}/{semester}/{fil
 
 Before — a chaotic downloads folder:
 
-```
+```text
 ~/Downloads
 ├── report-final.pdf
 ├── DSC_001.jpg
@@ -27,7 +27,7 @@ Before — a chaotic downloads folder:
 
 After — organized by category, subcategory, and semester:
 
-```
+```text
 ~/Downloads
 ├── Documents/
 │   ├── PDF/
@@ -67,7 +67,7 @@ After — organized by category, subcategory, and semester:
 
 Pass `--no-semester` to sort without semester subdirectories:
 
-```
+```text
 ~/Downloads
 ├── Documents/
 │   ├── PDF/report-final.pdf

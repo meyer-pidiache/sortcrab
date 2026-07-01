@@ -244,6 +244,57 @@ fn test_sort_nested_directories() {
     );
 }
 
+// ── Dry run via sort_files ───────────────────────────────────────────────────
+
+#[test]
+fn test_dry_run_pipeline() {
+    let src = tempdir().unwrap();
+    let tgt = tempdir().unwrap();
+
+    create_file(src.path(), "report.pdf", b"pdf");
+    create_file(src.path(), "song.mp3", b"mp3");
+
+    let rules = RulesConfig::default();
+    let report = sort_files(src.path(), tgt.path(), &rules, true, &default_semester()).unwrap();
+
+    // All files counted, none actually moved
+    assert_eq!(report.total, 2);
+    assert_eq!(report.moved, 2);
+    assert_eq!(report.errors, 0);
+
+    // Source files must still exist after dry run
+    assert!(src.path().join("report.pdf").exists());
+    assert!(src.path().join("song.mp3").exists());
+}
+
+// ── Sort without semester enabled ────────────────────────────────────────────
+
+#[test]
+fn test_sort_no_semester_integration() {
+    let src = tempdir().unwrap();
+    let tgt = tempdir().unwrap();
+
+    create_file(src.path(), "report.pdf", b"pdf");
+
+    let rules = RulesConfig::default();
+    let no_semester = SemesterConfig {
+        enabled: false,
+        ..SemesterConfig::default()
+    };
+    let report = sort_files(src.path(), tgt.path(), &rules, false, &no_semester).unwrap();
+
+    assert_eq!(report.total, 1);
+    assert_eq!(report.moved, 1);
+
+    // File should be directly under Documents/PDF — no semester subdirectory
+    let expected = tgt.path().join("Documents/PDF/report.pdf");
+    assert!(expected.exists(), "expected file at {expected:?}");
+    assert!(
+        !src.path().join("report.pdf").exists(),
+        "source should be gone"
+    );
+}
+
 // ── Init command via CLI subprocess with isolated HOME ─────────────────────
 //
 // We spawn `sortcrab init` in a subprocess with a temp HOME so the real

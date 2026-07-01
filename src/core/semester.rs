@@ -68,6 +68,7 @@ pub fn semester_label(
     let year = datetime.year().to_string();
     let month = datetime.month();
 
+    let months_per_period = months_per_period.max(1);
     let period = ((month - 1) / months_per_period) + 1;
 
     folder_format
