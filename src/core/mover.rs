@@ -136,7 +136,7 @@ pub fn move_file(opts: &MoveOptions<'_>) -> Result<PathBuf, SortcrabError> {
 ///
 /// If `filename` already exists under `dest_dir`, tries
 /// `file-1.ext`, `file-2.ext`, … until a free name is found.
-fn resolve_collision(dest_dir: &Path, filename: &str) -> PathBuf {
+pub(crate) fn resolve_collision(dest_dir: &Path, filename: &str) -> PathBuf {
     let path = dest_dir.join(filename);
     if !path.exists() {
         return path;

@@ -13,7 +13,7 @@ use std::path::Path;
 use crate::config::SemesterConfig;
 use crate::config::rules::RulesConfig;
 use crate::core::classify::classify_file;
-use crate::core::mover::{MoveOptions, move_file};
+use crate::core::mover::{MoveOptions, move_file, resolve_collision};
 use crate::core::semester::semester_label;
 use crate::error::SortcrabError;
 
@@ -189,7 +189,7 @@ pub fn sort_files(
         }
 
         if dry_run {
-            let dest = dest_dir.join(&filename);
+            let dest = resolve_collision(&dest_dir, &filename);
             tracing::info!("Would move {} -> {}", path.display(), dest.display());
             report.moved += 1;
         } else {

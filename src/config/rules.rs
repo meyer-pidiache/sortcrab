@@ -63,9 +63,8 @@ impl Default for RulesConfig {
 impl RulesConfig {
     /// Parse a `RulesConfig` from a TOML file at the given path.
     ///
-    /// Expected TOML format:
+    /// Expected TOML format (root-level keys, no `[rules]` wrapper):
     /// ```toml
-    /// [rules]
     /// "pdf" = { category = "Documents", subcategory = "PDF" }
     /// ```
     pub fn from_toml(path: impl AsRef<Path>) -> Result<Self, crate::error::SortcrabError> {
