@@ -82,6 +82,7 @@ fn resolve_home(path: &Path) -> PathBuf {
 /// # Example
 ///
 /// ```rust,no_run
+/// use clap::Parser;
 /// use sortcrab::cli::args::Cli;
 /// use sortcrab::cli::execute_sort;
 ///
