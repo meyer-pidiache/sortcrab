@@ -23,6 +23,36 @@ thread_local! {
     static TEST_CONFIG_DIR: RefCell<Option<PathBuf>> = const { RefCell::new(None) };
 }
 
+/// Controls semester-based subdirectory organisation.
+///
+/// When enabled, files are grouped by academic semester
+/// (`2025-I`, `2025-II`, …) under their category/subcategory tree.
+///
+/// # Example TOML
+///
+/// ```toml
+/// [semester]
+/// enabled = true
+/// ```
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SemesterConfig {
+    /// Whether to group files by semester.
+    #[serde(default = "default_semester_enabled")]
+    pub enabled: bool,
+}
+
+fn default_semester_enabled() -> bool {
+    true
+}
+
+impl Default for SemesterConfig {
+    fn default() -> Self {
+        SemesterConfig {
+            enabled: default_semester_enabled(),
+        }
+    }
+}
+
 /// Top-level sortcrab configuration persisted as TOML.
 ///
 /// # Example TOML
@@ -32,6 +62,9 @@ thread_local! {
 ///
 /// [rules]
 /// "pdf" = { category = "Documents", subcategory = "PDF" }
+///
+/// [semester]
+/// enabled = true
 /// ```
 ///
 /// # Example
@@ -46,6 +79,10 @@ thread_local! {
 pub struct SortcrabConfig {
     pub rules: rules::RulesConfig,
 
+    /// Controls semester-based subdirectory grouping.
+    #[serde(default)]
+    pub semester: SemesterConfig,
+
     /// Schema version for future migration support.
     #[serde(default = "default_version")]
     pub version: String,
@@ -59,6 +96,7 @@ impl Default for SortcrabConfig {
     fn default() -> Self {
         SortcrabConfig {
             rules: rules::RulesConfig::default(),
+            semester: SemesterConfig::default(),
             version: default_version(),
         }
     }

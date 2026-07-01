@@ -47,6 +47,9 @@ pub struct SortReport {
 /// the file's modification time, and move it into
 /// `{target}/{category}/{subcategory}/{semester}/{filename}`.
 ///
+/// When `semester_enabled` is `false`, the semester directory component is
+/// omitted from the destination path.
+///
 /// When `dry_run` is `true`, no files are actually moved — the intended
 /// destinations are logged via `tracing::info!`.
 ///
@@ -66,7 +69,7 @@ pub struct SortReport {
 /// use std::path::Path;
 ///
 /// let rules = RulesConfig::default();
-/// let report = sort_files(Path::new("/tmp/source"), Path::new("/tmp/target"), &rules, false)?;
+/// let report = sort_files(Path::new("/tmp/source"), Path::new("/tmp/target"), &rules, false, true)?;
 /// println!("Moved {} files", report.moved);
 /// # Ok::<_, sortcrab::error::SortcrabError>(())
 /// ```
@@ -75,6 +78,7 @@ pub fn sort_files(
     target: &Path,
     rules: &RulesConfig,
     dry_run: bool,
+    semester_enabled: bool,
 ) -> Result<SortReport, SortcrabError> {
     if !source.is_dir() {
         return Err(SortcrabError::InvalidPath(source.to_path_buf()));
@@ -149,7 +153,11 @@ pub fn sort_files(
             }
         };
 
-        let semester = semester_from_time(&modified);
+        let semester = if semester_enabled {
+            semester_from_time(&modified)
+        } else {
+            String::new()
+        };
 
         if dry_run {
             let dest_dir = target
@@ -232,7 +240,7 @@ mod tests {
         setup_source_file(src.path(), "main.rs", b"fn main() {}");
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
+        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
 
         assert_eq!(report.total, 3);
         assert_eq!(report.moved, 3);
@@ -262,11 +270,33 @@ mod tests {
         setup_source_file(src.path(), "report.pdf", b"pdf content");
 
         let rules = RulesConfig::default();
-        let _report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
+        let _report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
 
         let sem = current_semester();
         let expected = tgt.path().join(format!("Documents/PDF/{sem}/report.pdf"));
         assert!(expected.exists(), "Expected file at {}", expected.display());
+    }
+
+    #[test]
+    fn test_sort_no_semester() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        setup_source_file(src.path(), "report.pdf", b"pdf content");
+
+        let rules = RulesConfig::default();
+        let report = sort_files(src.path(), tgt.path(), &rules, false, false).unwrap();
+
+        assert_eq!(report.total, 1);
+        assert_eq!(report.moved, 1);
+
+        // File should be directly under Documents/PDF without semester dir
+        let expected = tgt.path().join("Documents/PDF/report.pdf");
+        assert!(
+            expected.exists(),
+            "Expected file at {} (no semester dir)",
+            expected.display()
+        );
     }
 
     #[test]
@@ -275,7 +305,7 @@ mod tests {
         let tgt = tempdir().unwrap();
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
+        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
 
         assert_eq!(report.total, 0);
         assert_eq!(report.moved, 0);
@@ -292,7 +322,7 @@ mod tests {
         setup_source_file(src.path(), "visible.pdf", b"visible");
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
+        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
 
         assert_eq!(report.total, 2);
         assert_eq!(report.moved, 1);
@@ -310,7 +340,7 @@ mod tests {
         setup_source_file(src.path(), "data.xyz123", b"unknown");
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
+        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
 
         assert_eq!(report.total, 1);
         assert_eq!(report.moved, 0);
@@ -343,7 +373,7 @@ mod tests {
         );
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
+        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
 
         // On unix the symlink is present so both entries are counted;
         // on non-unix only real.pdf exists.
@@ -384,7 +414,7 @@ mod tests {
         let file = setup_source_file(src.path(), "file.pdf", b"x");
 
         let rules = RulesConfig::default();
-        let result = sort_files(&file, src.path(), &rules, false);
+        let result = sort_files(&file, src.path(), &rules, false, true);
 
         assert!(result.is_err());
         match result.unwrap_err() {
@@ -407,7 +437,7 @@ mod tests {
         setup_source_file(src.path(), "song.mp3", b"mp3");
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
+        let report = sort_files(src.path(), tgt.path(), &rules, false, true).unwrap();
 
         assert_eq!(report.total, 4);
         assert_eq!(report.moved, 2); // doc.pdf, song.mp3
