@@ -233,7 +233,6 @@ not listed in your config keep their default mappings.
 
 ## Status
 
-[![CI](https://github.com/kevinalv/sortcrab/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinalv/sortcrab/actions/workflows/ci.yml)
 - **License**: [PolyForm Noncommercial 1.0.0](LICENSE.md)
 
 ## License
