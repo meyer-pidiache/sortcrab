@@ -1,0 +1,94 @@
+# ── Documents ─────────────────────────────────────────────────────────
+"pdf" = { category = "Documents", subcategory = "PDF" }
+"doc" = { category = "Documents", subcategory = "Word" }
+"docx" = { category = "Documents", subcategory = "Word" }
+"odt" = { category = "Documents", subcategory = "Word" }
+"txt" = { category = "Documents", subcategory = "Text" }
+"md" = { category = "Documents", subcategory = "Text" }
+"rtf" = { category = "Documents", subcategory = "Text" }
+"tex" = { category = "Documents", subcategory = "Latex" }
+"ppt" = { category = "Documents", subcategory = "Presentations" }
+"pptx" = { category = "Documents", subcategory = "Presentations" }
+"odp" = { category = "Documents", subcategory = "Presentations" }
+"xls" = { category = "Documents", subcategory = "Spreadsheets" }
+"xlsx" = { category = "Documents", subcategory = "Spreadsheets" }
+"ods" = { category = "Documents", subcategory = "Spreadsheets" }
+"csv" = { category = "Documents", subcategory = "Data" }
+"json" = { category = "Documents", subcategory = "Data" }
+"xml" = { category = "Documents", subcategory = "Data" }
+
+# ── Media / Images ────────────────────────────────────────────────────
+"jpg" = { category = "Media", subcategory = "Images" }
+"jpeg" = { category = "Media", subcategory = "Images" }
+"png" = { category = "Media", subcategory = "Images" }
+"gif" = { category = "Media", subcategory = "Images" }
+"bmp" = { category = "Media", subcategory = "Images" }
+"svg" = { category = "Media", subcategory = "Images/Vectors" }
+"webp" = { category = "Media", subcategory = "Images" }
+"heic" = { category = "Media", subcategory = "Images" }
+"psd" = { category = "Media", subcategory = "Images/Photoshop" }
+"ai" = { category = "Media", subcategory = "Images/Illustrator" }
+"indd" = { category = "Media", subcategory = "Images/InDesign" }
+
+# ── Media / Audio ─────────────────────────────────────────────────────
+"mp3" = { category = "Media", subcategory = "Audio" }
+"wav" = { category = "Media", subcategory = "Audio" }
+"flac" = { category = "Media", subcategory = "Audio" }
+"aac" = { category = "Media", subcategory = "Audio" }
+"ogg" = { category = "Media", subcategory = "Audio" }
+"m4a" = { category = "Media", subcategory = "Audio" }
+
+# ── Media / Videos ────────────────────────────────────────────────────
+"mp4" = { category = "Media", subcategory = "Videos" }
+"mov" = { category = "Media", subcategory = "Videos" }
+"avi" = { category = "Media", subcategory = "Videos" }
+"mkv" = { category = "Media", subcategory = "Videos" }
+"flv" = { category = "Media", subcategory = "Videos" }
+"wmv" = { category = "Media", subcategory = "Videos" }
+"webm" = { category = "Media", subcategory = "Videos" }
+
+# ── Archives ──────────────────────────────────────────────────────────
+"zip" = { category = "Archives", subcategory = "Archives" }
+"rar" = { category = "Archives", subcategory = "Archives" }
+"7z" = { category = "Archives", subcategory = "Archives" }
+"tar" = { category = "Archives", subcategory = "Archives" }
+"gz" = { category = "Archives", subcategory = "Archives" }
+"bz2" = { category = "Archives", subcategory = "Archives" }
+"xz" = { category = "Archives", subcategory = "Archives" }
+
+# ── Packages ──────────────────────────────────────────────────────────
+"deb" = { category = "Packages", subcategory = "Packages" }
+"rpm" = { category = "Packages", subcategory = "Packages" }
+"exe" = { category = "Packages", subcategory = "Packages" }
+"msi" = { category = "Packages", subcategory = "Packages" }
+"dmg" = { category = "Packages", subcategory = "Packages" }
+"pkg" = { category = "Packages", subcategory = "Packages" }
+"appimage" = { category = "Packages", subcategory = "Packages" }
+
+# ── Development ───────────────────────────────────────────────────────
+"sh" = { category = "Development", subcategory = "Scripts" }
+"bash" = { category = "Development", subcategory = "Scripts" }
+"py" = { category = "Development", subcategory = "Python" }
+"js" = { category = "Development", subcategory = "JavaScript" }
+"ts" = { category = "Development", subcategory = "TypeScript" }
+"java" = { category = "Development", subcategory = "Java" }
+"c" = { category = "Development", subcategory = "C" }
+"cpp" = { category = "Development", subcategory = "C++" }
+"cs" = { category = "Development", subcategory = "CSharp" }
+"go" = { category = "Development", subcategory = "Go" }
+"rs" = { category = "Development", subcategory = "Rust" }
+"php" = { category = "Development", subcategory = "Web" }
+"html" = { category = "Development", subcategory = "Web" }
+"css" = { category = "Development", subcategory = "Web" }
+"scss" = { category = "Development", subcategory = "Web" }
+"sql" = { category = "Development", subcategory = "Databases" }
+"db" = { category = "Development", subcategory = "Databases" }
+"sqlite" = { category = "Development", subcategory = "Databases" }
+"dockerfile" = { category = "Development", subcategory = "Docker" }
+
+# ── Other ─────────────────────────────────────────────────────────────
+"torrent" = { category = "Other", subcategory = "Torrents" }
+"iso" = { category = "Other", subcategory = "DiskImages" }
+"img" = { category = "Other", subcategory = "DiskImages" }
+"vdi" = { category = "Other", subcategory = "VirtualMachines" }
+"vbox" = { category = "Other", subcategory = "VirtualMachines" }
