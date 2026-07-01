@@ -40,7 +40,7 @@ fn test_full_sort_pipeline() {
     create_file(src.path(), "notes.txt", b"notes content");
 
     let rules = RulesConfig::default();
-    let report = sort_files(src.path(), tgt.path(), &rules).unwrap();
+    let report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
 
     assert_eq!(report.total, 5);
     assert_eq!(report.moved, 5);
@@ -95,20 +95,20 @@ fn test_sort_with_collisions() {
 
     // First file → report.pdf
     create_file(src.path(), "report.pdf", b"first content");
-    let r1 = sort_files(src.path(), tgt.path(), &rules).unwrap();
+    let r1 = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
     assert_eq!(r1.moved, 1);
     assert!(dest_dir.join("report.pdf").exists());
 
     // Second file with same name → report-1.pdf
     create_file(src.path(), "report.pdf", b"second content");
-    let r2 = sort_files(src.path(), tgt.path(), &rules).unwrap();
+    let r2 = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
     assert_eq!(r2.moved, 1);
     assert!(dest_dir.join("report-1.pdf").exists());
     assert!(!src.path().join("report.pdf").exists());
 
     // Third file with same name → report-2.pdf
     create_file(src.path(), "report.pdf", b"third content");
-    let r3 = sort_files(src.path(), tgt.path(), &rules).unwrap();
+    let r3 = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
     assert_eq!(r3.moved, 1);
     assert!(dest_dir.join("report-2.pdf").exists());
     assert!(!src.path().join("report.pdf").exists());
@@ -122,7 +122,7 @@ fn test_sort_empty_dir() {
     let tgt = tempdir().unwrap();
 
     let rules = RulesConfig::default();
-    let report = sort_files(src.path(), tgt.path(), &rules).unwrap();
+    let report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
 
     assert_eq!(report.total, 0);
     assert_eq!(report.moved, 0);
@@ -147,7 +147,7 @@ fn test_sort_all_skip_conditions() {
         .unwrap();
 
     let rules = RulesConfig::default();
-    let report = sort_files(src.path(), tgt.path(), &rules).unwrap();
+    let report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
 
     #[cfg(unix)]
     {
@@ -193,7 +193,7 @@ fn test_sort_mixed_known_and_unknown() {
     create_file(src.path(), "also_unknown.qwerty", b"???");
 
     let rules = RulesConfig::default();
-    let report = sort_files(src.path(), tgt.path(), &rules).unwrap();
+    let report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
 
     assert_eq!(report.total, 4);
     assert_eq!(report.moved, 2);
@@ -219,7 +219,7 @@ fn test_sort_nested_directories() {
     create_file(src.path(), "root.pdf", b"root content");
 
     let rules = RulesConfig::default();
-    let report = sort_files(src.path(), tgt.path(), &rules).unwrap();
+    let report = sort_files(src.path(), tgt.path(), &rules, false).unwrap();
 
     // Only the root-level file is processed
     assert_eq!(report.total, 1);

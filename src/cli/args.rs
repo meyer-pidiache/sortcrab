@@ -31,6 +31,10 @@ pub struct Cli {
     #[arg(global = true, short = 'q', long)]
     pub quiet: bool,
 
+    /// Perform a dry run without moving any files
+    #[arg(long)]
+    pub dry_run: bool,
+
     #[command(subcommand)]
     pub command: Option<Commands>,
 }
@@ -52,6 +56,9 @@ pub struct SortArgs {
 
     /// Target directory for sorted output (defaults to source for in-place organisation)
     pub target: Option<PathBuf>,
+
+    /// Perform a dry run without moving any files
+    pub dry_run: bool,
 }
 
 /// Arguments for the `config` subcommand.

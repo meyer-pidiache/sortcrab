@@ -28,6 +28,7 @@ pub fn run(cli: Cli) -> Result<(), SortcrabError> {
             let args = SortArgs {
                 source: cli.source,
                 target: cli.target,
+                dry_run: cli.dry_run,
             };
             handle_sort(args)
         }
@@ -37,7 +38,7 @@ pub fn run(cli: Cli) -> Result<(), SortcrabError> {
 }
 
 fn handle_sort(args: SortArgs) -> Result<(), SortcrabError> {
-    execute_sort(&args)
+    execute_sort(&args, args.dry_run)
 }
 
 fn handle_init() -> Result<(), SortcrabError> {
@@ -101,23 +102,36 @@ fn resolve_home(path: &Path) -> PathBuf {
 /// let args = SortArgs {
 ///     source: PathBuf::from("~/Downloads"),
 ///     target: None,
+///     dry_run: false,
 /// };
-/// execute_sort(&args).unwrap();
+/// execute_sort(&args, false).unwrap();
 /// ```
-pub fn execute_sort(args: &SortArgs) -> Result<(), SortcrabError> {
+pub fn execute_sort(args: &SortArgs, dry_run: bool) -> Result<(), SortcrabError> {
     let source = resolve_home(&args.source);
     let target: PathBuf = args.target.clone().unwrap_or_else(|| source.clone());
 
-    tracing::debug!("Sort source: {:?}, target: {:?}", source, target);
+    tracing::debug!(
+        "Sort source: {:?}, target: {:?}{}",
+        source,
+        target,
+        if dry_run { " (dry run)" } else { "" }
+    );
 
     let rules = RulesConfig::default();
 
-    let report = sort_files(&source, &target, &rules)?;
+    let report = sort_files(&source, &target, &rules, dry_run)?;
 
-    println!(
-        "Sorted {} files, skipped {}, {} errors",
-        report.moved, report.skipped, report.errors
-    );
+    if dry_run {
+        println!(
+            "Dry run: would sort {} files, skip {}, {} errors",
+            report.moved, report.skipped, report.errors
+        );
+    } else {
+        println!(
+            "Sorted {} files, skipped {}, {} errors",
+            report.moved, report.skipped, report.errors
+        );
+    }
 
     tracing::info!(
         "Sort complete — total: {}, moved: {}, skipped: {}, errors: {}",
