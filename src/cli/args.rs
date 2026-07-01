@@ -35,6 +35,10 @@ pub struct Cli {
     #[arg(long)]
     pub dry_run: bool,
 
+    /// Disable semester-based subdirectory grouping
+    #[arg(long)]
+    pub no_semester: bool,
+
     #[command(subcommand)]
     pub command: Option<Commands>,
 }
@@ -59,6 +63,9 @@ pub struct SortArgs {
 
     /// Perform a dry run without moving any files
     pub dry_run: bool,
+
+    /// Disable semester-based subdirectory grouping
+    pub no_semester: bool,
 }
 
 /// Arguments for the `config` subcommand.

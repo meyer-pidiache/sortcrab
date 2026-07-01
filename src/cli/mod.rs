@@ -9,7 +9,6 @@ use std::path::{Path, PathBuf};
 
 use crate::cli::args::{Cli, Commands, ConfigArgs, SortArgs};
 use crate::config::ConfigManager;
-use crate::config::rules::RulesConfig;
 use crate::core::sort_files;
 use crate::error::SortcrabError;
 
@@ -29,6 +28,7 @@ pub fn run(cli: Cli) -> Result<(), SortcrabError> {
                 source: cli.source,
                 target: cli.target,
                 dry_run: cli.dry_run,
+                no_semester: cli.no_semester,
             };
             handle_sort(args)
         }
@@ -38,7 +38,7 @@ pub fn run(cli: Cli) -> Result<(), SortcrabError> {
 }
 
 fn handle_sort(args: SortArgs) -> Result<(), SortcrabError> {
-    execute_sort(&args, args.dry_run)
+    execute_sort(&args, args.dry_run, args.no_semester)
 }
 
 fn handle_init() -> Result<(), SortcrabError> {
@@ -86,8 +86,8 @@ fn resolve_home(path: &Path) -> PathBuf {
 /// Execute the sort command.
 ///
 /// Resolves the target directory (defaulting to the source directory for
-/// in-place organisation), loads the default rules configuration, calls
-/// [`sort_files`], and prints a human-readable summary.
+/// in-place organisation), loads the configuration, and calls [`sort_files`].
+/// Prints a human-readable summary on completion.
 ///
 /// # Errors
 /// Returns [`SortcrabError::InvalidPath`] if the source directory does not exist.
@@ -103,23 +103,30 @@ fn resolve_home(path: &Path) -> PathBuf {
 ///     source: PathBuf::from("~/Downloads"),
 ///     target: None,
 ///     dry_run: false,
+///     no_semester: false,
 /// };
-/// execute_sort(&args, false).unwrap();
+/// execute_sort(&args, false, false).unwrap();
 /// ```
-pub fn execute_sort(args: &SortArgs, dry_run: bool) -> Result<(), SortcrabError> {
+pub fn execute_sort(
+    args: &SortArgs,
+    dry_run: bool,
+    no_semester: bool,
+) -> Result<(), SortcrabError> {
     let source = resolve_home(&args.source);
     let target: PathBuf = args.target.clone().unwrap_or_else(|| source.clone());
 
+    let config = ConfigManager::load()?;
+    let semester_enabled = config.semester.enabled && !no_semester;
+
     tracing::debug!(
-        "Sort source: {:?}, target: {:?}{}",
+        "Sort source: {:?}, target: {:?}, semester: {}{}",
         source,
         target,
+        if semester_enabled { "on" } else { "off" },
         if dry_run { " (dry run)" } else { "" }
     );
 
-    let rules = RulesConfig::default();
-
-    let report = sort_files(&source, &target, &rules, dry_run)?;
+    let report = sort_files(&source, &target, &config.rules, dry_run, semester_enabled)?;
 
     if dry_run {
         println!(
