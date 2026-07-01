@@ -172,6 +172,8 @@ sortcrab completions powershell >> $PROFILE
 
 ### Flags
 
+- `--dry-run` — preview which files would be moved without actually moving them
+- `--no-semester` — disable semester-based subdirectory grouping
 - `--verbose` / `-v` — enable debug-level logging
 - `--quiet` / `-q` — suppress all output except errors
 
@@ -216,18 +218,23 @@ to create it with defaults, then edit to customize.
 version = "1"
 
 [rules]
-"pdf" = { category = "Documents", subcategory = "PDF" }
-"mp3" = { category = "Media", subcategory = "Audio" }
-# Add your own overrides below
+pdf = { category = "Documents", subcategory = "PDF" }
+mp3 = { category = "Media", subcategory = "Audio" }
+
+# Add your own overrides or new extensions below.
+# Extensions not listed here keep their built-in defaults.
+# You can also use the expanded table format:
+# [rules.svg]
+# category = "Media"
+# subcategory = "Images/Vectors"
+
+[semester]
+enabled = true
+months_per_period = 6
+folder_format = "{year}-{roman}"
 ```
 
-User rules take precedence over built-in defaults on a per-extension basis. Extensions
-not listed in your config keep their default mappings.
-
-## Status
-
-[![CI](https://github.com/meyer-pidiache/sortcrab/actions/workflows/ci.yml/badge.svg)](https://github.com/meyer-pidiache/sortcrab/actions/workflows/ci.yml)
-- **License**: [PolyForm Noncommercial 1.0.0](LICENSE.md)
+Rule overrides take precedence over built-in defaults on a per-extension basis.
 
 ## License
 
