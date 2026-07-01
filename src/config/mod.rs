@@ -124,7 +124,7 @@ impl ConfigManager {
 
         let config = SortcrabConfig::default();
         let toml_str =
-            toml::to_string_pretty(&config).map_err(|e| SortcrabError::Config(e.to_string()))?;
+            toml::to_string(&config).map_err(|e| SortcrabError::Config(e.to_string()))?;
         std::fs::write(&path, toml_str)?;
 
         tracing::info!("Created default config at {:?}", path);
@@ -207,7 +207,7 @@ mod tests {
     #[test]
     fn test_sortcrab_config_toml_roundtrip() {
         let config = SortcrabConfig::default();
-        let toml_str = toml::to_string_pretty(&config).expect("serialization should succeed");
+        let toml_str = toml::to_string(&config).expect("serialization should succeed");
         let parsed: SortcrabConfig =
             toml::from_str(&toml_str).expect("deserialization should succeed");
         assert_eq!(parsed.rules.rules.len(), config.rules.rules.len());
