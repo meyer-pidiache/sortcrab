@@ -118,5 +118,7 @@ pre-filled when you open a pull request on GitHub.
 
 ## What to work on
 
-Check the issue tracker for open bugs and feature requests. If you want to work
-on something that is not yet tracked, open an issue first to discuss the approach.
+Check the issue tracker for open bugs and feature requests. If you find something
+you'd like to work on, comment on the issue to let others know you're taking it.
+If you want to work on something that is not yet tracked, open an issue first to
+discuss the approach.

@@ -6,14 +6,34 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Thanks for filing a bug report!
 
-  - type: input
+        Before you continue:
+        - Make sure sortcrab is up to date: `sortcrab --version`
+        - Check [existing issues](https://github.com/meyer-pidiache/sortcrab/issues) to avoid duplicates
+        - If sortcrab didn't move your files, check the source path exists and the files aren't already at the destination
+
+  - type: checkboxes
+    id: pre-check
+    attributes:
+      label: Pre-submission checklist
+      description: Please confirm before filing
+      options:
+        - label: I have searched existing issues and found no duplicate
+          required: true
+        - label: I am running the latest version of sortcrab
+          required: true
+        - label: I have verified the files exist and are not symlinks or dotfiles
+          required: false
+
+  - type: textarea
     id: version
     attributes:
       label: Version
-      description: What version of sortcrab are you running? Run `sortcrab --version` and paste the output.
-      placeholder: "e.g. sortcrab 0.1.2"
+      description: Run `sortcrab --version` and paste the output.
+      placeholder: |
+        sortcrab 0.1.2
+      render: shell
     validations:
       required: true
 
@@ -24,7 +44,7 @@ body:
       description: How did you install sortcrab?
       options:
         - cargo install
-        - Homebrew (meyer-pidiache/sortcrab/sortcrab)
+        - Homebrew
         - Pre-built binary (GitHub release)
         - Built from source
         - Other
@@ -94,3 +114,11 @@ body:
       label: Additional context
       description: Add any other context, screenshots, or configuration files that might help.
       placeholder: "Contents of ~/.config/sortcrab/config.toml (if modified): ..."
+      render: shell
+
+  - type: textarea
+    id: possible-solution
+    attributes:
+      label: Possible solution (optional)
+      description: If you have an idea of how to fix this, share it here.
+      placeholder: "The issue might be in the semester calculation when the year changes..."

@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for suggesting! Please describe the problem you're trying to solve, not just the solution you have in mind.
+        Describe the problem you're solving, not just the solution you want.
 
   - type: textarea
     id: problem
@@ -31,14 +31,7 @@ body:
     attributes:
       label: Example usage
       description: A concrete example of how a user would interact with this feature.
-      placeholder: |
-        ```
-        sortcrab --dry-run
-        Media/
-        ├── Images/2025-II/
-        │   └── photo.jpg
-        ...
-        ```
+      placeholder: "sortcrab --dry-run would show a tree preview of where each file would go"
       render: shell
 
   - type: textarea
@@ -47,6 +40,7 @@ body:
       label: Alternatives considered
       description: Have you considered any workarounds or alternative approaches?
       placeholder: "I could pipe the output through grep/find, but that doesn't group by category..."
+      render: shell
 
   - type: dropdown
     id: contribution
@@ -57,3 +51,5 @@ body:
         - "Yes"
         - "No"
         - "Maybe (need guidance)"
+    validations:
+      required: true

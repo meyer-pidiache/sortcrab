@@ -1,8 +1,6 @@
 ## Description
 
-<!-- Describe the change and the motivation behind it. What problem does this solve, and why is this the right approach? -->
-
-Closes #<!-- issue number -->
+<!-- Describe the change and the motivation behind it. What problem does this solve, and why is this the right approach? If this closes an issue, write "Closes #123". -->
 
 ## Type of change
 
@@ -23,11 +21,19 @@ Closes #<!-- issue number -->
 - [ ] `cargo build` compiles cleanly
 - [ ] `cargo test` passes (all tests, including new ones)
 - [ ] `cargo clippy --all-targets -- -D warnings` passes
+- [ ] `cargo fmt --check` passes
 - [ ] Tested with `--dry-run` on a sample directory (if behaviour-affecting)
 
 ## Checklist
 
-- [ ] My changes follow the existing code style and conventions
-- [ ] I have added or updated tests to cover my changes
+- [ ] My code is formatted with `cargo fmt` and passes `cargo clippy --all-targets -- -D warnings`
+- [ ] I have added or updated tests (or verified this is not needed for my change)
 - [ ] I have added or updated documentation (if applicable)
-- [ ] My commit messages follow [conventional commits](https://www.conventionalcommits.org/)
+
+<!-- This repository uses conventional commits. Commits will be squashed with the PR title as the final message. -->
+
+## Migration guide (if breaking change)
+
+<!-- Describe what changed, why, and how users should update their usage. -->
+- Before:
+- After:
