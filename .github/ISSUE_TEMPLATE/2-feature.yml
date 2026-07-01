@@ -1,0 +1,59 @@
+name: Feature Request
+description: Suggest an idea for sortcrab
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting! Please describe the problem you're trying to solve, not just the solution you have in mind.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What pain point or limitation does this address? Describe the scenario where this would be useful.
+      placeholder: "When I sort my downloads folder with hundreds of files, I can't easily see what would happen without scrolling through pages of log output..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How do you envision this working? Be concrete about the user-facing behavior.
+      placeholder: "Add a --dry-run flag that shows a tree view of where each file would go instead of the current log output..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example usage
+      description: A concrete example of how a user would interact with this feature.
+      placeholder: |
+        ```
+        sortcrab --dry-run
+        Media/
+        ├── Images/2025-II/
+        │   └── photo.jpg
+        ...
+        ```
+      render: shell
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you considered any workarounds or alternative approaches?
+      placeholder: "I could pipe the output through grep/find, but that doesn't group by category..."
+
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Would you be willing to submit a PR?
+      description: This is not a commitment — just helps us gauge interest.
+      options:
+        - "Yes"
+        - "No"
+        - "Maybe (need guidance)"
