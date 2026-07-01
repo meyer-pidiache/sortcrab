@@ -8,7 +8,7 @@ pub mod args;
 use std::path::{Path, PathBuf};
 
 use crate::cli::args::{Cli, Commands, ConfigArgs};
-use crate::config::ConfigManager;
+use crate::config::{ConfigManager, SemesterConfig};
 use crate::core::sort_files;
 use crate::error::SortcrabError;
 
@@ -91,21 +91,34 @@ fn resolve_home(path: &Path) -> PathBuf {
 /// ```
 pub fn execute_sort(cli: &Cli) -> Result<(), SortcrabError> {
     let source = resolve_home(&cli.source);
-    let target: PathBuf = cli.target.clone().unwrap_or_else(|| source.clone());
+    let target: PathBuf = cli
+        .target
+        .as_ref()
+        .map(|t| resolve_home(t))
+        .unwrap_or_else(|| source.clone());
 
     let config = ConfigManager::load()?;
-    let semester_enabled = config.semester.enabled && !cli.no_semester;
     let dry_run = cli.dry_run;
+
+    // Disable semester grouping when the CLI flag overrides the config
+    let semester_cfg = if cli.no_semester {
+        SemesterConfig {
+            enabled: false,
+            ..config.semester.clone()
+        }
+    } else {
+        config.semester.clone()
+    };
 
     tracing::debug!(
         "Sort source: {:?}, target: {:?}, semester: {}{}",
         source,
         target,
-        if semester_enabled { "on" } else { "off" },
+        if semester_cfg.enabled { "on" } else { "off" },
         if dry_run { " (dry run)" } else { "" }
     );
 
-    let report = sort_files(&source, &target, &config.rules, dry_run, semester_enabled)?;
+    let report = sort_files(&source, &target, &config.rules, dry_run, &semester_cfg)?;
 
     if dry_run {
         println!(

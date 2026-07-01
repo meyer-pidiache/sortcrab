@@ -25,30 +25,56 @@ thread_local! {
 
 /// Controls semester-based subdirectory organisation.
 ///
-/// When enabled, files are grouped by academic semester
+/// When enabled, files are grouped by configurable periods
 /// (`2025-I`, `2025-II`, …) under their category/subcategory tree.
+///
+/// `months_per_period` controls how many months fall in each period
+/// (6 = semesters, 4 = trimesters, 3 = quarters, 12 = yearly).
+///
+/// `folder_format` is a template string that supports `{year}`,
+/// `{period}` (1-based numeric), and `{roman}` (Roman numeral).
 ///
 /// # Example TOML
 ///
 /// ```toml
 /// [semester]
 /// enabled = true
+/// months_per_period = 3
+/// folder_format = "{year}Q{period}"
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SemesterConfig {
     /// Whether to group files by semester.
     #[serde(default = "default_semester_enabled")]
     pub enabled: bool,
+
+    /// Number of months per academic period (default: 6).
+    #[serde(default = "default_months_per_period")]
+    pub months_per_period: u32,
+
+    /// Folder-name template. Variables: {year}, {period}, {roman}.
+    #[serde(default = "default_folder_format")]
+    pub folder_format: String,
 }
 
 fn default_semester_enabled() -> bool {
     true
 }
 
+fn default_months_per_period() -> u32 {
+    6
+}
+
+fn default_folder_format() -> String {
+    "{year}-{roman}".to_string()
+}
+
 impl Default for SemesterConfig {
     fn default() -> Self {
         SemesterConfig {
             enabled: default_semester_enabled(),
+            months_per_period: default_months_per_period(),
+            folder_format: default_folder_format(),
         }
     }
 }

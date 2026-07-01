@@ -55,21 +55,20 @@ pub fn classify_extension<'a>(rules: &'a RulesConfig, extension: &str) -> Option
 /// assert_eq!(class.category, "Documents");
 /// ```
 pub fn classify_file(rules: &RulesConfig, path: &Path) -> Result<Classification, SortcrabError> {
-    let ext = path.extension().and_then(|s| s.to_str()).ok_or_else(|| {
-        SortcrabError::UnknownExtension(
-            path.file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("<unknown>")
-                .to_string(),
-        )
-    })?;
+    // First try by extension (e.g. ".pdf" → "pdf").
+    // If the file has no extension, fall back to its name (e.g. "Dockerfile").
+    let lookup_key = path
+        .extension()
+        .and_then(|s| s.to_str())
+        .or_else(|| path.file_name().and_then(|n| n.to_str()))
+        .ok_or_else(|| SortcrabError::UnknownExtension("<unknown>".to_string()))?;
 
-    match classify_extension(rules, ext) {
+    match classify_extension(rules, lookup_key) {
         Some(rule) => Ok(Classification {
             category: rule.category.clone(),
             subcategory: rule.subcategory.clone(),
         }),
-        None => Err(SortcrabError::UnknownExtension(ext.to_string())),
+        None => Err(SortcrabError::UnknownExtension(lookup_key.to_string())),
     }
 }
 
@@ -148,13 +147,21 @@ mod tests {
     }
 
     #[test]
-    fn classify_file_no_extension() {
+    fn classify_file_dockerfile() {
+        let rules = test_rules();
+        let class = classify_file(&rules, Path::new("Dockerfile")).unwrap();
+        assert_eq!(class.category, "Development");
+        assert_eq!(class.subcategory, "Docker");
+    }
+
+    #[test]
+    fn classify_file_makefile_unknown() {
         let rules = test_rules();
         match classify_file(&rules, Path::new("Makefile")) {
             Err(SortcrabError::UnknownExtension(ref name)) => {
                 assert_eq!(name, "Makefile");
             }
-            _ => panic!("expected UnknownExtension for file without extension"),
+            _ => panic!("expected UnknownExtension for Makefile"),
         }
     }
 
