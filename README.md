@@ -25,51 +25,44 @@ Before — a chaotic downloads folder:
 └── node_modules.zip
 ```
 
-After — organized by category and subcategory:
+After — organized by category, subcategory, and semester:
 
 ```
 ~/Downloads
 ├── Documents/
 │   ├── PDF/
-│   │   ├── report-final.pdf
-│   │   └── homework_math.pdf
+│   │   ├── 2025-II/
+│   │   │   └── report-final.pdf
+│   │   └── 2026-I/
+│   │       └── homework_math.pdf
 │   ├── Word/
-│   │   └── class_notes.docx
+│   │   └── 2026-I/
+│   │       └── class_notes.docx
 │   └── Spreadsheets/
-│       └── budget.xlsx
+│       └── 2025-II/
+│           └── budget.xlsx
 ├── Media/
 │   ├── Images/
-│   │   ├── DSC_001.jpg
-│   │   ├── DSC_002.jpg
-│   │   └── screenshot.png
+│   │   ├── 2025-II/
+│   │   │   ├── DSC_001.jpg
+│   │   │   └── DSC_002.jpg
+│   │   └── 2026-I/
+│   │       └── screenshot.png
 │   ├── Audio/
-│   │   └── song.mp3
+│   │   └── 2026-I/
+│   │       └── song.mp3
 │   └── Videos/
-│       └── vacation.mp4
+│       └── 2026-I/
+│           └── vacation.mp4
 ├── Archives/
-│   ├── archive.zip
-│   └── node_modules.zip
+│   └── Archives/
+│       └── 2026-II/
+│           ├── archive.zip
+│           └── node_modules.zip
 └── Development/
     └── Rust/
-        └── main.rs
-```
-
-In semester mode (default), files are grouped by semester under their
-category and subcategory:
-
-```
-~/Downloads
-├── Documents/
-│   ├── PDF/2025-II/report-final.pdf
-│   └── Word/2026-I/class_notes.docx
-├── Media/
-│   ├── Images/2025-II/DSC_001.jpg
-│   ├── Audio/2026-I/song.mp3
-│   └── Videos/2026-I/vacation.mp4
-├── Archives/
-│   └── 2026-II/archive.zip
-└── Development/
-    └── Rust/2025-II/main.rs
+        └── 2025-II/
+            └── main.rs
 ```
 
 Pass `--no-semester` to sort without semester subdirectories:
@@ -233,6 +226,7 @@ not listed in your config keep their default mappings.
 
 ## Status
 
+[![CI](https://github.com/meyer-pidiache/sortcrab/actions/workflows/ci.yml/badge.svg)](https://github.com/meyer-pidiache/sortcrab/actions/workflows/ci.yml)
 - **License**: [PolyForm Noncommercial 1.0.0](LICENSE.md)
 
 ## License
