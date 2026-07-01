@@ -7,7 +7,7 @@ pub mod args;
 
 use std::path::{Path, PathBuf};
 
-use crate::cli::args::{Cli, Commands, ConfigArgs, SortArgs};
+use crate::cli::args::{Cli, Commands, ConfigArgs};
 use crate::config::ConfigManager;
 use crate::core::sort_files;
 use crate::error::SortcrabError;
@@ -22,23 +22,10 @@ pub fn run(cli: Cli) -> Result<(), SortcrabError> {
     crate::init_logging(cli.verbose, cli.quiet);
 
     match cli.command {
-        None => {
-            // Default: run sort
-            let args = SortArgs {
-                source: cli.source,
-                target: cli.target,
-                dry_run: cli.dry_run,
-                no_semester: cli.no_semester,
-            };
-            handle_sort(args)
-        }
+        None => execute_sort(&cli),
         Some(Commands::Init) => handle_init(),
         Some(Commands::Config(args)) => handle_config(args),
     }
-}
-
-fn handle_sort(args: SortArgs) -> Result<(), SortcrabError> {
-    execute_sort(&args, args.dry_run, args.no_semester)
 }
 
 fn handle_init() -> Result<(), SortcrabError> {
@@ -95,28 +82,19 @@ fn resolve_home(path: &Path) -> PathBuf {
 /// # Example
 ///
 /// ```rust,no_run
-/// use sortcrab::cli::args::SortArgs;
+/// use sortcrab::cli::args::Cli;
 /// use sortcrab::cli::execute_sort;
-/// use std::path::PathBuf;
 ///
-/// let args = SortArgs {
-///     source: PathBuf::from("~/Downloads"),
-///     target: None,
-///     dry_run: false,
-///     no_semester: false,
-/// };
-/// execute_sort(&args, false, false).unwrap();
+/// let cli = Cli::parse_from(["sortcrab", "--dry-run"]);
+/// execute_sort(&cli).unwrap();
 /// ```
-pub fn execute_sort(
-    args: &SortArgs,
-    dry_run: bool,
-    no_semester: bool,
-) -> Result<(), SortcrabError> {
-    let source = resolve_home(&args.source);
-    let target: PathBuf = args.target.clone().unwrap_or_else(|| source.clone());
+pub fn execute_sort(cli: &Cli) -> Result<(), SortcrabError> {
+    let source = resolve_home(&cli.source);
+    let target: PathBuf = cli.target.clone().unwrap_or_else(|| source.clone());
 
     let config = ConfigManager::load()?;
-    let semester_enabled = config.semester.enabled && !no_semester;
+    let semester_enabled = config.semester.enabled && !cli.no_semester;
+    let dry_run = cli.dry_run;
 
     tracing::debug!(
         "Sort source: {:?}, target: {:?}, semester: {}{}",

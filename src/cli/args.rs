@@ -52,22 +52,6 @@ pub enum Commands {
     Config(ConfigArgs),
 }
 
-/// Arguments for the sort operation.
-#[derive(Parser, Debug)]
-pub struct SortArgs {
-    /// Source directory to scan for files
-    pub source: PathBuf,
-
-    /// Target directory for sorted output (defaults to source for in-place organisation)
-    pub target: Option<PathBuf>,
-
-    /// Perform a dry run without moving any files
-    pub dry_run: bool,
-
-    /// Disable semester-based subdirectory grouping
-    pub no_semester: bool,
-}
-
 /// Arguments for the `config` subcommand.
 #[derive(Parser, Debug)]
 pub struct ConfigArgs {
