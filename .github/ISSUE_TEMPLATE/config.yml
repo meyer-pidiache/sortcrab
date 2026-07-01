@@ -1,5 +1,11 @@
 blank_issues_enabled: true
 contact_links:
   - name: Ask a question
-    url: https://github.com/meyer-pidiache/sortcrab/discussions
-    about: Please use Discussions for questions, ideas, and general help.
+    url: https://github.com/meyer-pidiache/sortcrab/discussions/categories/q-a
+    about: Ask questions and get help using sortcrab.
+  - name: Share an idea
+    url: https://github.com/meyer-pidiache/sortcrab/discussions/categories/ideas
+    about: Discuss feature ideas before filing a formal request.
+  - name: Report a security vulnerability
+    url: https://github.com/meyer-pidiache/sortcrab/security/advisories/new
+    about: Please report security vulnerabilities here.
