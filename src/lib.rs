@@ -18,6 +18,7 @@
 //!     Path::new("/path/to/target"),
 //!     &rules,
 //!     false,
+//!     true,
 //! )?;
 //! println!("Moved {} files", report.moved);
 //! # Ok::<_, sortcrab::error::SortcrabError>(())
