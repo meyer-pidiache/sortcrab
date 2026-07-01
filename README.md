@@ -54,21 +54,37 @@ After — organized by category and subcategory:
         └── main.rs
 ```
 
-In semester mode, files are additionally grouped by academic semester
-based on their modification date:
+In semester mode (default), files are grouped by semester under their
+category and subcategory:
 
 ```
 ~/Downloads
-├── 2025-II/
-│   ├── Documents/PDF/report-final.pdf
-│   ├── Media/Images/DSC_001.jpg
-│   └── Development/Rust/main.rs
-├── 2026-I/
-│   ├── Documents/Word/class_notes.docx
-│   ├── Media/Audio/song.mp3
-│   └── Media/Videos/vacation.mp4
-└── 2026-II/
-    └── Archives/archive.zip
+├── Documents/
+│   ├── PDF/2025-II/report-final.pdf
+│   └── Word/2026-I/class_notes.docx
+├── Media/
+│   ├── Images/2025-II/DSC_001.jpg
+│   ├── Audio/2026-I/song.mp3
+│   └── Videos/2026-I/vacation.mp4
+├── Archives/
+│   └── 2026-II/archive.zip
+└── Development/
+    └── Rust/2025-II/main.rs
+```
+
+Pass `--no-semester` to sort without semester subdirectories:
+
+```
+~/Downloads
+├── Documents/
+│   ├── PDF/report-final.pdf
+│   └── Word/class_notes.docx
+├── Media/
+│   ├── Images/DSC_001.jpg
+│   ├── Audio/song.mp3
+│   └── Videos/vacation.mp4
+├── Archives/archive.zip
+└── Development/Rust/main.rs
 ```
 
 ## Quick start
@@ -217,8 +233,7 @@ not listed in your config keep their default mappings.
 
 ## Status
 
-- **Build status**: passing (placeholder)
-- **Test coverage**: growing (placeholder)
+[![CI](https://github.com/kevinalv/sortcrab/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinalv/sortcrab/actions/workflows/ci.yml)
 - **License**: [PolyForm Noncommercial 1.0.0](LICENSE.md)
 
 ## License
