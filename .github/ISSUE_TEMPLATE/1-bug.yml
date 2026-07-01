@@ -1,0 +1,96 @@
+name: Bug Report
+description: Report a bug to help us improve sortcrab
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of sortcrab are you running? Run `sortcrab --version` and paste the output.
+      placeholder: "e.g. sortcrab 0.1.2"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installation method
+      description: How did you install sortcrab?
+      options:
+        - cargo install
+        - Homebrew (meyer-pidiache/sortcrab/sortcrab)
+        - Pre-built binary (GitHub release)
+        - Built from source
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      description: What operating system are you on?
+      options:
+        - Linux (x86_64)
+        - Linux (aarch64)
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+        - Windows
+        - WSL
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: A clear and concise description of what the bug is.
+      placeholder: "sortcrab crashes when I try to sort a directory with symlinks..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this bug? Be as specific as possible.
+      placeholder: |
+        1. Create directory with files: `mkdir -p /tmp/test && touch /tmp/test/{a.pdf,b.txt}`
+        2. Run `sortcrab -s /tmp/test -t /tmp/out`
+        3. See error: ...
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened? Include any error output.
+      placeholder: "sortcrab exited with code 1 and printed: Error: ..."
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen instead?
+      placeholder: "Files should be moved to /tmp/out/Documents/PDF/ and /tmp/out/Text/..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add any other context, screenshots, or configuration files that might help.
+      placeholder: "Contents of ~/.config/sortcrab/config.toml (if modified): ..."

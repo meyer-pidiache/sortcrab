@@ -1,34 +1,33 @@
 ## Description
 
-Closes #<issue-number>
+<!-- Describe the change and the motivation behind it. What problem does this solve, and why is this the right approach? -->
 
-Brief description of the changes and why they are needed.
+Closes #<!-- issue number -->
 
-## Type of Change
+## Type of change
+
+<!-- Check the category that applies. -->
 
 - [ ] Bug fix (non-breaking change that fixes an issue)
 - [ ] New feature (non-breaking change that adds functionality)
-- [ ] Breaking change (fix or feature that changes existing behavior)
-- [ ] Documentation update
 - [ ] Refactor (code change that neither fixes a bug nor adds a feature)
-- [ ] Test update
+- [ ] Documentation (README, rustdoc, comments, or other docs)
+- [ ] CI / build (release workflow, dependencies, etc.)
+- [ ] Breaking change (fix or feature that alters existing behavior)
+- [ ] Other (please describe):
 
-## Changes
+## How was this tested?
 
-| File | Description |
-|------|-------------|
-| `path/to/file.rs` | Brief description of the change |
+<!-- Describe the tests you ran or the manual verification steps. -->
 
-## Test Plan
-
-- [ ] `cargo test` passes
+- [ ] `cargo build` compiles cleanly
+- [ ] `cargo test` passes (all tests, including new ones)
 - [ ] `cargo clippy --all-targets -- -D warnings` passes
-- [ ] `cargo fmt --check` passes
+- [ ] Tested with `--dry-run` on a sample directory (if behaviour-affecting)
 
-## Self-Review Checklist
+## Checklist
 
-- [ ] My code follows the project's code style
-- [ ] I have added tests for new functionality
-- [ ] My changes generate no new warnings
-- [ ] I have updated documentation where needed
-- [ ] My commits follow [Conventional Commits](https://www.conventionalcommits.org/)
+- [ ] My changes follow the existing code style and conventions
+- [ ] I have added or updated tests to cover my changes
+- [ ] I have added or updated documentation (if applicable)
+- [ ] My commit messages follow [conventional commits](https://www.conventionalcommits.org/)
