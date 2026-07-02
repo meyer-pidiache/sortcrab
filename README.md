@@ -102,8 +102,7 @@ curl --proto '=https' --tlsv1.2 -fsSL https://github.com/meyer-pidiache/sortcrab
 
 The script auto-detects your OS, architecture, and libc, downloads the correct binary
 from the latest GitHub release, verifies the SHA-256 checksum, and installs it to
-`~/.local/bin/`. No `sudo` required.
-
+ `~/.local/bin/`. No `sudo` required.
 
 Flags:
 
@@ -114,7 +113,7 @@ Flags:
 | `--no-modify-path` | Skip adding `~/.local/bin/` to `PATH` in shell config |
 
 > On Windows, use **Git Bash** or **WSL** — the script supports MINGW64/MSYS2
-> environments. PowerShell users see the [install.ps1](https://github.com/meyer-pidiache/sortcrab/releases/latest/download/install.ps1) option.
+> environments.
 
 **Option 4 — Build from source**
 ```bash
