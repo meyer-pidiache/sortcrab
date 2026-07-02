@@ -66,7 +66,7 @@ pub struct SortReport {
 /// period length and folder-name template.
 ///
 /// When `dry_run` is `true`, no files are actually moved — the intended
-/// destinations are logged via `tracing::info!`.
+/// destinations are logged via `log::info!`.
 ///
 /// Directories are silently skipped and do **not** count toward the total.
 /// Per-file errors are collected in the returned [`SortReport`] — the function
@@ -113,7 +113,7 @@ pub fn sort_files(
         let entry = match entry {
             Ok(e) => e,
             Err(e) => {
-                tracing::warn!("Failed to read directory entry: {e}");
+                log::warn!("Failed to read directory entry: {e}");
                 report.errors += 1;
                 report.total += 1;
                 continue;
@@ -123,7 +123,7 @@ pub fn sort_files(
         let path = entry.path();
 
         if path.is_dir() {
-            tracing::debug!("Skipping directory: {}", path.display());
+            log::debug!("Skipping directory: {}", path.display());
             continue;
         }
 
@@ -132,7 +132,7 @@ pub fn sort_files(
         let filename = match path.file_name().and_then(|n| n.to_str()) {
             Some(name) => name.to_string(),
             None => {
-                tracing::warn!("Could not extract filename from: {}", path.display());
+                log::warn!("Could not extract filename from: {}", path.display());
                 report.errors += 1;
                 continue;
             }
@@ -140,7 +140,7 @@ pub fn sort_files(
 
         // ── Skip dotfiles (applies to both dry-run and real mode) ──
         if filename.starts_with('.') {
-            tracing::debug!("Skipping dotfile: {}", path.display());
+            log::debug!("Skipping dotfile: {}", path.display());
             report.skipped += 1;
             continue;
         }
@@ -148,7 +148,7 @@ pub fn sort_files(
         let classification = match classify_file(rules, &path) {
             Ok(c) => c,
             Err(e) => {
-                tracing::warn!("Could not classify {}: {e}", path.display());
+                log::warn!("Could not classify {}: {e}", path.display());
                 report.errors += 1;
                 continue;
             }
@@ -160,7 +160,7 @@ pub fn sort_files(
         if let Ok(meta) = fs::symlink_metadata(&path)
             && meta.is_symlink()
         {
-            tracing::debug!("Skipping symlink: {}", path.display());
+            log::debug!("Skipping symlink: {}", path.display());
             report.skipped += 1;
             continue;
         }
@@ -169,13 +169,13 @@ pub fn sort_files(
             Ok(meta) => match meta.modified() {
                 Ok(t) => t,
                 Err(e) => {
-                    tracing::warn!("Could not read modified time for {}: {e}", path.display());
+                    log::warn!("Could not read modified time for {}: {e}", path.display());
                     report.errors += 1;
                     continue;
                 }
             },
             Err(e) => {
-                tracing::warn!("Could not read metadata for {}: {e}", path.display());
+                log::warn!("Could not read metadata for {}: {e}", path.display());
                 report.errors += 1;
                 continue;
             }
@@ -200,7 +200,7 @@ pub fn sort_files(
             && let Ok(source_canonical) = std::fs::canonicalize(&path)
             && source_canonical.starts_with(&dest_canonical)
         {
-            tracing::debug!("Already organised: {}", path.display());
+            log::debug!("Already organised: {}", path.display());
             report.skipped += 1;
             continue;
         }
@@ -231,11 +231,11 @@ pub fn sort_files(
                     report.moved += 1;
                 }
                 Err(SortcrabError::Skipped(reason)) => {
-                    tracing::debug!("Skipped {}: {reason}", path.display());
+                    log::debug!("Skipped {}: {reason}", path.display());
                     report.skipped += 1;
                 }
                 Err(e) => {
-                    tracing::error!("Failed to move {}: {e}", path.display());
+                    log::error!("Failed to move {}: {e}", path.display());
                     report.errors += 1;
                 }
             }
