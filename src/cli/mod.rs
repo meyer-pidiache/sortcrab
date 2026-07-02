@@ -30,7 +30,7 @@ pub fn run(cli: Cli) -> Result<(), SortcrabError> {
 }
 
 fn handle_init() -> Result<(), SortcrabError> {
-    tracing::debug!("Initializing default configuration");
+    log::debug!("Initializing default configuration");
     ConfigManager::create_default()?;
     println!(
         "Created default configuration at {:?}",
@@ -40,7 +40,7 @@ fn handle_init() -> Result<(), SortcrabError> {
 }
 
 fn handle_config(args: ConfigArgs) -> Result<(), SortcrabError> {
-    tracing::debug!("Config show={}, edit={}", args.show, args.edit);
+    log::debug!("Config show={}, edit={}", args.show, args.edit);
     if args.show {
         ConfigManager::print()?;
     } else if args.edit {
@@ -111,7 +111,7 @@ pub fn execute_sort(cli: &Cli) -> Result<(), SortcrabError> {
         config.semester.clone()
     };
 
-    tracing::debug!(
+    log::debug!(
         "Sort source: {:?}, target: {:?}, semester: {}{}",
         source,
         target,

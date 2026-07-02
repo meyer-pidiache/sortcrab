@@ -32,7 +32,6 @@ pub mod core;
 pub mod error;
 
 use clap::Parser;
-use tracing_subscriber::EnvFilter;
 
 /// Initialize logging based on verbosity level.
 ///
@@ -42,19 +41,19 @@ use tracing_subscriber::EnvFilter;
 ///
 /// Uses `try_init()` so calling it twice is harmless (second call is a no-op).
 pub fn init_logging(verbose: bool, quiet: bool) {
-    let filter = if quiet {
-        EnvFilter::new("error")
-    } else if verbose {
-        EnvFilter::new("debug")
-    } else {
-        EnvFilter::new("info")
-    };
+    let mut builder = env_logger::Builder::from_default_env();
 
-    let _ = tracing_subscriber::fmt()
-        .with_env_filter(filter)
-        .with_target(true)
-        .with_line_number(true)
-        .try_init();
+    builder.format_target(true).format_line_number(true);
+
+    if quiet {
+        builder.filter_level(log::LevelFilter::Error);
+    } else if verbose {
+        builder.filter_level(log::LevelFilter::Debug);
+    } else {
+        builder.filter_level(log::LevelFilter::Info);
+    }
+
+    let _ = builder.try_init();
 }
 
 /// Run the sortcrab CLI.

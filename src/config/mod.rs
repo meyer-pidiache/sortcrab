@@ -233,7 +233,7 @@ impl ConfigManager {
 
         std::fs::write(&path, toml)?;
 
-        tracing::info!("Created default config at {:?}", path);
+        log::info!("Created default config at {:?}", path);
         Ok(())
     }
 
