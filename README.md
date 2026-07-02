@@ -212,29 +212,28 @@ override or extend any of them in the configuration file.
 ## Configuration
 
 The configuration file lives at `~/.config/sortcrab/config.toml`. Run `sortcrab init`
-to create it with defaults, then edit to customize.
+to create it with all built-in rules, then edit to customize.
 
 ```toml
 version = "1"
-
-[rules]
-pdf = { category = "Documents", subcategory = "PDF" }
-mp3 = { category = "Media", subcategory = "Audio" }
-
-# Add your own overrides or new extensions below.
-# Extensions not listed here keep their built-in defaults.
-# You can also use the expanded table format:
-# [rules.svg]
-# category = "Media"
-# subcategory = "Images/Vectors"
 
 [semester]
 enabled = true
 months_per_period = 6
 folder_format = "{year}-{roman}"
+
+[rules]
+# ~80 built-in extension rules (truncated)
+pdf = { category = "Documents", subcategory = "PDF" }
+mp3 = { category = "Media", subcategory = "Audio" }
+rs = { category = "Development", subcategory = "Rust" }
+# ...
 ```
 
-Rule overrides take precedence over built-in defaults on a per-extension basis.
+Rule overrides take precedence over built-in defaults on a per-extension basis —
+you can edit any value or add new extensions directly in the file. Extensions not
+listed in the file still get their built-in classification thanks to the
+merge-at-load behaviour.
 
 ## License
 
