@@ -139,3 +139,31 @@ pub fn execute_sort(cli: &Cli) -> Result<(), SortcrabError> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_handle_init_creates_config() {
+        let tmp = tempdir().unwrap();
+        ConfigManager::set_test_config_dir(tmp.path().to_path_buf());
+
+        let result = handle_init();
+        assert!(result.is_ok());
+        assert!(ConfigManager::config_path().unwrap().exists());
+
+        ConfigManager::clear_test_config_dir();
+    }
+
+    #[test]
+    fn test_handle_config_debug_no_action() {
+        let args = ConfigArgs {
+            show: false,
+            edit: false,
+        };
+        let result = handle_config(args);
+        assert!(result.is_ok());
+    }
+}

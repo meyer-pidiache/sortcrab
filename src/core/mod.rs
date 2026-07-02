@@ -578,4 +578,23 @@ mod tests {
         // No semester dir in dry-run output
         assert!(src.path().join("doc.pdf").exists());
     }
+
+    #[test]
+    fn test_already_organised_skipped() {
+        let tgt = tempdir().unwrap();
+        let sem = current_semester();
+
+        // Source is inside the destination tree — file is already organised.
+        let src = tgt.path().join("Documents/PDF").join(&sem);
+        fs::create_dir_all(&src).unwrap();
+        let file_path = src.join("report.pdf");
+        fs::write(&file_path, b"content").unwrap();
+
+        let rules = RulesConfig::default();
+        let report = sort_files(&src, tgt.path(), &rules, false, &default_semester()).unwrap();
+
+        assert_eq!(report.total, 1);
+        assert_eq!(report.skipped, 1);
+        assert_eq!(report.moved, 0);
+    }
 }
