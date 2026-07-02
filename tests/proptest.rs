@@ -11,7 +11,7 @@ use proptest::prelude::*;
 use sortcrab::config::rules::RulesConfig;
 use sortcrab::core::classify::classify_extension;
 use sortcrab::core::moving::{Classification, MoveOptions, move_file};
-use sortcrab::core::semester::semester_from_time;
+use sortcrab::core::semester::semester_label;
 
 // ── Date strategy: covers general dates + semester boundaries ────────────────
 
@@ -107,7 +107,7 @@ proptest! {
             .unwrap();
         let time = SystemTime::from(local_dt);
 
-        let sem = semester_from_time(&time);
+        let sem = semester_label(&time, 6, "{year}-{roman}");
         let year = date.year();
         let month = date.month();
 
