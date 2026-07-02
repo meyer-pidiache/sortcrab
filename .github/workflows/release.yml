@@ -218,9 +218,14 @@ jobs:
     needs: [plan, build, homebrew, publish, tag]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+
       - uses: actions/download-artifact@v8
         with:
           path: artifacts
+
+      - name: Include install script in release assets
+        run: cp install.sh artifacts/
 
       - name: Create Release
         uses: softprops/action-gh-release@v3
