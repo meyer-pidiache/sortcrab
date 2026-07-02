@@ -81,16 +81,19 @@ impl Default for SemesterConfig {
 
 /// Top-level sortcrab configuration persisted as TOML.
 ///
+/// Fields are ordered so that `version` and `[semester]` appear first in the
+/// serialised file, before the long `[rules.*]` section.
+///
 /// # Example TOML
 ///
 /// ```toml
 /// version = "1"
 ///
-/// [rules]
-/// "pdf" = { category = "Documents", subcategory = "PDF" }
-///
 /// [semester]
 /// enabled = true
+///
+/// [rules]
+/// "pdf" = { category = "Documents", subcategory = "PDF" }
 /// ```
 ///
 /// # Example
@@ -103,15 +106,17 @@ impl Default for SemesterConfig {
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SortcrabConfig {
-    pub rules: rules::RulesConfig,
+    /// Schema version for future migration support.
+    #[serde(default = "default_version")]
+    pub version: String,
 
     /// Controls semester-based subdirectory grouping.
     #[serde(default)]
     pub semester: SemesterConfig,
 
-    /// Schema version for future migration support.
-    #[serde(default = "default_version")]
-    pub version: String,
+    /// Extension-to-category mapping rules.
+    #[serde(default)]
+    pub rules: rules::RulesConfig,
 }
 
 fn default_version() -> String {
@@ -121,9 +126,9 @@ fn default_version() -> String {
 impl Default for SortcrabConfig {
     fn default() -> Self {
         SortcrabConfig {
-            rules: rules::RulesConfig::default(),
-            semester: SemesterConfig::default(),
             version: default_version(),
+            semester: SemesterConfig::default(),
+            rules: rules::RulesConfig::default(),
         }
     }
 }
@@ -168,18 +173,33 @@ impl ConfigManager {
     }
 
     /// Load configuration from disk, or return defaults if the file doesn't exist.
+    ///
+    /// User-specified rules are merged with built-in defaults so unlisted
+    /// extensions keep their default classifications. The `[semester]` section
+    /// and `version` come entirely from the user file.
     pub fn load() -> Result<SortcrabConfig, SortcrabError> {
         let path = Self::config_path()?;
         if path.exists() {
             let content = std::fs::read_to_string(&path)?;
-            let config: SortcrabConfig = toml::from_str(&content)?;
-            Ok(config)
+            let user_config: SortcrabConfig = toml::from_str(&content)?;
+            let defaults = SortcrabConfig::default();
+            let merged_rules = defaults.rules.merge(user_config.rules);
+            Ok(SortcrabConfig {
+                rules: merged_rules,
+                semester: user_config.semester,
+                version: user_config.version,
+            })
         } else {
             Ok(SortcrabConfig::default())
         }
     }
 
-    /// Create the config directory and write the default configuration file.
+    /// Create the config directory and write the default configuration file
+    /// with all built-in extension rules in inline `[rules]` format.
+    ///
+    /// Inline format (`ext = { category = "...", subcategory = "..." }`) is
+    /// used instead of the expanded `[rules.ext]` table format so the file is
+    /// more compact and easier to scan.
     pub fn create_default() -> Result<(), SortcrabError> {
         let path = Self::config_path()?;
         let dir = Self::config_dir()?;
@@ -187,9 +207,31 @@ impl ConfigManager {
         std::fs::create_dir_all(&dir)?;
 
         let config = SortcrabConfig::default();
-        let toml_str =
-            toml::to_string(&config).map_err(|e| SortcrabError::Config(e.to_string()))?;
-        std::fs::write(&path, toml_str)?;
+        let mut toml = String::new();
+
+        toml.push_str(&format!("version = \"{}\"\n", config.version));
+        toml.push_str("\n[semester]\n");
+        toml.push_str(&format!("enabled = {}\n", config.semester.enabled));
+        toml.push_str(&format!(
+            "months_per_period = {}\n",
+            config.semester.months_per_period
+        ));
+        toml.push_str(&format!(
+            "folder_format = \"{}\"\n",
+            config.semester.folder_format
+        ));
+        toml.push_str("\n[rules]\n");
+        let mut extensions: Vec<&String> = config.rules.rules.keys().collect();
+        extensions.sort();
+        for ext in extensions {
+            let rule = &config.rules.rules[ext];
+            toml.push_str(&format!(
+                "{ext} = {{ category = \"{}\", subcategory = \"{}\" }}\n",
+                rule.category, rule.subcategory,
+            ));
+        }
+
+        std::fs::write(&path, toml)?;
 
         tracing::info!("Created default config at {:?}", path);
         Ok(())
