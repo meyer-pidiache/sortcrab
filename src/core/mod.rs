@@ -282,6 +282,7 @@ fn check_already_organised(
     source_canonical.starts_with(&dest_canonical)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn execute_move(
     path: &Path,
     target: &Path,
