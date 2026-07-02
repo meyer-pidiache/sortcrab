@@ -12,6 +12,9 @@ use std::fs;
 use std::fs::DirEntry;
 use std::io;
 use std::path::{Path, PathBuf};
+use std::time::SystemTime;
+
+use crate::core::moving::Classification;
 
 use crate::config::SemesterConfig;
 use crate::config::rules::RulesConfig;
@@ -158,56 +161,22 @@ fn process_single_file(
     report: &mut SortReport,
     predicted: &mut HashSet<PathBuf>,
 ) {
-    let filename = match path.file_name().and_then(|n| n.to_str()) {
-        Some(name) => name.to_string(),
-        None => {
-            log::warn!("Could not extract filename from: {}", path.display());
-            report.errors += 1;
-            return;
-        }
+    let Some(filename) = extract_filename(path, report) else {
+        return;
     };
 
-    // ── Skip dotfiles (applies to both dry-run and real mode) ──
     if filename.starts_with('.') {
         log::debug!("Skipping dotfile: {}", path.display());
         report.skipped += 1;
         return;
     }
 
-    let classification = match classify_file(rules, path) {
-        Ok(c) => c,
-        Err(e) => {
-            log::warn!("Could not classify {}: {e}", path.display());
-            report.errors += 1;
-            return;
-        }
+    let Some(classification) = classify_or_skip(path, rules, report) else {
+        return;
     };
 
-    // ── Skip symlinks early ────────────────────────────────────
-    // fs::metadata follows symlinks and would error on a broken
-    // symlink whose target was already moved in this pass.
-    if let Ok(meta) = fs::symlink_metadata(path)
-        && meta.is_symlink()
-    {
-        log::debug!("Skipping symlink: {}", path.display());
-        report.skipped += 1;
+    let Some(modified) = read_modified_time(path, report) else {
         return;
-    }
-
-    let modified = match fs::metadata(path) {
-        Ok(meta) => match meta.modified() {
-            Ok(t) => t,
-            Err(e) => {
-                log::warn!("Could not read modified time for {}: {e}", path.display());
-                report.errors += 1;
-                return;
-            }
-        },
-        Err(e) => {
-            log::warn!("Could not read metadata for {}: {e}", path.display());
-            report.errors += 1;
-            return;
-        }
     };
 
     let semester = if semester_cfg.enabled {
@@ -220,22 +189,116 @@ fn process_single_file(
         String::new()
     };
 
-    // ── Idempotency check (applies to both dry-run and real mode) ──
-    let dest_dir = target
-        .join(&classification.category)
-        .join(&classification.subcategory)
-        .join(&semester);
-    if let Ok(dest_canonical) = std::fs::canonicalize(&dest_dir)
-        && let Ok(source_canonical) = std::fs::canonicalize(path)
-        && source_canonical.starts_with(&dest_canonical)
-    {
+    if check_already_organised(path, target, &classification, &semester) {
         log::debug!("Already organised: {}", path.display());
         report.skipped += 1;
         return;
     }
 
+    execute_move(
+        path,
+        target,
+        &classification,
+        &semester,
+        &filename,
+        dry_run,
+        report,
+        predicted,
+    );
+}
+
+fn extract_filename(path: &Path, report: &mut SortReport) -> Option<String> {
+    match path.file_name().and_then(|n| n.to_str()) {
+        Some(name) => Some(name.to_string()),
+        None => {
+            log::warn!("Could not extract filename from: {}", path.display());
+            report.errors += 1;
+            None
+        }
+    }
+}
+
+fn classify_or_skip(
+    path: &Path,
+    rules: &RulesConfig,
+    report: &mut SortReport,
+) -> Option<Classification> {
+    let classification = match classify_file(rules, path) {
+        Ok(c) => c,
+        Err(e) => {
+            log::warn!("Could not classify {}: {e}", path.display());
+            report.errors += 1;
+            return None;
+        }
+    };
+
+    // fs::metadata follows symlinks and would error on a broken
+    // symlink whose target was already moved in this pass.
+    if let Ok(meta) = fs::symlink_metadata(path)
+        && meta.is_symlink()
+    {
+        log::debug!("Skipping symlink: {}", path.display());
+        report.skipped += 1;
+        return None;
+    }
+
+    Some(classification)
+}
+
+fn read_modified_time(path: &Path, report: &mut SortReport) -> Option<SystemTime> {
+    match fs::metadata(path) {
+        Ok(meta) => match meta.modified() {
+            Ok(t) => Some(t),
+            Err(e) => {
+                log::warn!("Could not read modified time for {}: {e}", path.display());
+                report.errors += 1;
+                None
+            }
+        },
+        Err(e) => {
+            log::warn!("Could not read metadata for {}: {e}", path.display());
+            report.errors += 1;
+            None
+        }
+    }
+}
+
+fn check_already_organised(
+    path: &Path,
+    target: &Path,
+    classification: &Classification,
+    semester: &str,
+) -> bool {
+    let dest_dir = target
+        .join(&classification.category)
+        .join(&classification.subcategory)
+        .join(semester);
+    let Ok(dest_canonical) = std::fs::canonicalize(&dest_dir) else {
+        return false;
+    };
+    let Ok(source_canonical) = std::fs::canonicalize(path) else {
+        return false;
+    };
+    source_canonical.starts_with(&dest_canonical)
+}
+
+fn execute_move(
+    path: &Path,
+    target: &Path,
+    classification: &Classification,
+    semester: &str,
+    filename: &str,
+    dry_run: bool,
+    report: &mut SortReport,
+    predicted: &mut HashSet<PathBuf>,
+) {
+    let dest_dir = target
+        .join(&classification.category)
+        .join(&classification.subcategory)
+        .join(semester);
+
     if dry_run {
-        let dest = resolve_collision(&dest_dir, &filename, predicted);
+        let dest = resolve_collision(&dest_dir, filename, predicted);
         predicted.insert(dest.clone());
         report.moves.push(MoveRecord {
             dest_relative: dest.strip_prefix(target).unwrap_or(&dest).to_path_buf(),
@@ -246,9 +309,9 @@ fn process_single_file(
         let opts = MoveOptions {
             source: path,
             target,
-            classification: &classification,
-            semester: &semester,
-            filename: &filename,
+            classification,
+            semester,
+            filename,
         };
 
         match move_file(&opts) {
