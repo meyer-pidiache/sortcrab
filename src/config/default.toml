@@ -47,23 +47,30 @@
 "wmv" = { category = "Media", subcategory = "Videos" }
 "webm" = { category = "Media", subcategory = "Videos" }
 
-# ── Archives ──────────────────────────────────────────────────────────
-"zip" = { category = "Archives", subcategory = "Archives" }
-"rar" = { category = "Archives", subcategory = "Archives" }
-"7z" = { category = "Archives", subcategory = "Archives" }
-"tar" = { category = "Archives", subcategory = "Archives" }
-"gz" = { category = "Archives", subcategory = "Archives" }
-"bz2" = { category = "Archives", subcategory = "Archives" }
-"xz" = { category = "Archives", subcategory = "Archives" }
+# ── Archives / Compressed ────────────────────────────────────────────
+"zip" = { category = "Archives", subcategory = "Compressed" }
+"rar" = { category = "Archives", subcategory = "Compressed" }
+"7z" = { category = "Archives", subcategory = "Compressed" }
+"tar" = { category = "Archives", subcategory = "Compressed" }
+"gz" = { category = "Archives", subcategory = "Compressed" }
+"bz2" = { category = "Archives", subcategory = "Compressed" }
+"xz" = { category = "Archives", subcategory = "Compressed" }
 
-# ── Packages ──────────────────────────────────────────────────────────
-"deb" = { category = "Packages", subcategory = "Packages" }
-"rpm" = { category = "Packages", subcategory = "Packages" }
-"exe" = { category = "Packages", subcategory = "Packages" }
-"msi" = { category = "Packages", subcategory = "Packages" }
-"dmg" = { category = "Packages", subcategory = "Packages" }
-"pkg" = { category = "Packages", subcategory = "Packages" }
-"appimage" = { category = "Packages", subcategory = "Packages" }
+# ── Archives / Disk Images ───────────────────────────────────────────
+"iso" = { category = "Archives", subcategory = "DiskImages" }
+"img" = { category = "Archives", subcategory = "DiskImages" }
+
+# ── Archives / Torrents ──────────────────────────────────────────────
+"torrent" = { category = "Archives", subcategory = "Torrents" }
+
+# ── Archives / Packages ─────────────────────────────────────────────
+"deb" = { category = "Archives", subcategory = "Packages" }
+"rpm" = { category = "Archives", subcategory = "Packages" }
+"exe" = { category = "Archives", subcategory = "Packages" }
+"msi" = { category = "Archives", subcategory = "Packages" }
+"dmg" = { category = "Archives", subcategory = "Packages" }
+"pkg" = { category = "Archives", subcategory = "Packages" }
+"appimage" = { category = "Archives", subcategory = "Packages" }
 
 # ── Development ───────────────────────────────────────────────────────
 "sh" = { category = "Development", subcategory = "Scripts" }
@@ -87,8 +94,5 @@
 "dockerfile" = { category = "Development", subcategory = "Docker" }
 
 # ── Other ─────────────────────────────────────────────────────────────
-"torrent" = { category = "Other", subcategory = "Torrents" }
-"iso" = { category = "Other", subcategory = "DiskImages" }
-"img" = { category = "Other", subcategory = "DiskImages" }
 "vdi" = { category = "Other", subcategory = "VirtualMachines" }
 "vbox" = { category = "Other", subcategory = "VirtualMachines" }
