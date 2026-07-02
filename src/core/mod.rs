@@ -9,6 +9,8 @@ pub mod semester;
 
 use std::collections::HashSet;
 use std::fs;
+use std::fs::DirEntry;
+use std::io;
 use std::path::{Path, PathBuf};
 
 use crate::config::SemesterConfig;
@@ -110,17 +112,9 @@ pub fn sort_files(
     let entries = fs::read_dir(source)?;
 
     for entry in entries {
-        let entry = match entry {
-            Ok(e) => e,
-            Err(e) => {
-                log::warn!("Failed to read directory entry: {e}");
-                report.errors += 1;
-                report.total += 1;
-                continue;
-            }
+        let Some(path) = resolve_entry(entry, &mut report) else {
+            continue;
         };
-
-        let path = entry.path();
 
         if path.is_dir() {
             log::debug!("Skipping directory: {}", path.display());
@@ -129,120 +123,152 @@ pub fn sort_files(
 
         report.total += 1;
 
-        let filename = match path.file_name().and_then(|n| n.to_str()) {
-            Some(name) => name.to_string(),
-            None => {
-                log::warn!("Could not extract filename from: {}", path.display());
-                report.errors += 1;
-                continue;
-            }
-        };
-
-        // ── Skip dotfiles (applies to both dry-run and real mode) ──
-        if filename.starts_with('.') {
-            log::debug!("Skipping dotfile: {}", path.display());
-            report.skipped += 1;
-            continue;
-        }
-
-        let classification = match classify_file(rules, &path) {
-            Ok(c) => c,
-            Err(e) => {
-                log::warn!("Could not classify {}: {e}", path.display());
-                report.errors += 1;
-                continue;
-            }
-        };
-
-        // ── Skip symlinks early ────────────────────────────────────
-        // fs::metadata follows symlinks and would error on a broken
-        // symlink whose target was already moved in this pass.
-        if let Ok(meta) = fs::symlink_metadata(&path)
-            && meta.is_symlink()
-        {
-            log::debug!("Skipping symlink: {}", path.display());
-            report.skipped += 1;
-            continue;
-        }
-
-        let modified = match fs::metadata(&path) {
-            Ok(meta) => match meta.modified() {
-                Ok(t) => t,
-                Err(e) => {
-                    log::warn!("Could not read modified time for {}: {e}", path.display());
-                    report.errors += 1;
-                    continue;
-                }
-            },
-            Err(e) => {
-                log::warn!("Could not read metadata for {}: {e}", path.display());
-                report.errors += 1;
-                continue;
-            }
-        };
-
-        let semester = if semester_cfg.enabled {
-            semester_label(
-                &modified,
-                semester_cfg.months_per_period,
-                &semester_cfg.folder_format,
-            )
-        } else {
-            String::new()
-        };
-
-        // ── Idempotency check (applies to both dry-run and real mode) ──
-        let dest_dir = target
-            .join(&classification.category)
-            .join(&classification.subcategory)
-            .join(&semester);
-        if let Ok(dest_canonical) = std::fs::canonicalize(&dest_dir)
-            && let Ok(source_canonical) = std::fs::canonicalize(&path)
-            && source_canonical.starts_with(&dest_canonical)
-        {
-            log::debug!("Already organised: {}", path.display());
-            report.skipped += 1;
-            continue;
-        }
-
-        if dry_run {
-            let dest = resolve_collision(&dest_dir, &filename, &predicted);
-            predicted.insert(dest.clone());
-            report.moves.push(MoveRecord {
-                dest_relative: dest.strip_prefix(target).unwrap_or(&dest).to_path_buf(),
-                dry_run: true,
-            });
-            report.moved += 1;
-        } else {
-            let opts = MoveOptions {
-                source: &path,
-                target,
-                classification: &classification,
-                semester: &semester,
-                filename: &filename,
-            };
-
-            match move_file(&opts) {
-                Ok(dest) => {
-                    report.moves.push(MoveRecord {
-                        dest_relative: dest.strip_prefix(target).unwrap_or(&dest).to_path_buf(),
-                        dry_run: false,
-                    });
-                    report.moved += 1;
-                }
-                Err(SortcrabError::Skipped(reason)) => {
-                    log::debug!("Skipped {}: {reason}", path.display());
-                    report.skipped += 1;
-                }
-                Err(e) => {
-                    log::error!("Failed to move {}: {e}", path.display());
-                    report.errors += 1;
-                }
-            }
-        }
+        process_single_file(
+            &path,
+            target,
+            rules,
+            dry_run,
+            semester_cfg,
+            &mut report,
+            &mut predicted,
+        );
     }
 
     Ok(report)
+}
+
+fn resolve_entry(entry: Result<DirEntry, io::Error>, report: &mut SortReport) -> Option<PathBuf> {
+    match entry {
+        Ok(e) => Some(e.path()),
+        Err(e) => {
+            log::warn!("Failed to read directory entry: {e}");
+            report.errors += 1;
+            report.total += 1;
+            None
+        }
+    }
+}
+
+fn process_single_file(
+    path: &Path,
+    target: &Path,
+    rules: &RulesConfig,
+    dry_run: bool,
+    semester_cfg: &SemesterConfig,
+    report: &mut SortReport,
+    predicted: &mut HashSet<PathBuf>,
+) {
+    let filename = match path.file_name().and_then(|n| n.to_str()) {
+        Some(name) => name.to_string(),
+        None => {
+            log::warn!("Could not extract filename from: {}", path.display());
+            report.errors += 1;
+            return;
+        }
+    };
+
+    // ── Skip dotfiles (applies to both dry-run and real mode) ──
+    if filename.starts_with('.') {
+        log::debug!("Skipping dotfile: {}", path.display());
+        report.skipped += 1;
+        return;
+    }
+
+    let classification = match classify_file(rules, path) {
+        Ok(c) => c,
+        Err(e) => {
+            log::warn!("Could not classify {}: {e}", path.display());
+            report.errors += 1;
+            return;
+        }
+    };
+
+    // ── Skip symlinks early ────────────────────────────────────
+    // fs::metadata follows symlinks and would error on a broken
+    // symlink whose target was already moved in this pass.
+    if let Ok(meta) = fs::symlink_metadata(path)
+        && meta.is_symlink()
+    {
+        log::debug!("Skipping symlink: {}", path.display());
+        report.skipped += 1;
+        return;
+    }
+
+    let modified = match fs::metadata(path) {
+        Ok(meta) => match meta.modified() {
+            Ok(t) => t,
+            Err(e) => {
+                log::warn!("Could not read modified time for {}: {e}", path.display());
+                report.errors += 1;
+                return;
+            }
+        },
+        Err(e) => {
+            log::warn!("Could not read metadata for {}: {e}", path.display());
+            report.errors += 1;
+            return;
+        }
+    };
+
+    let semester = if semester_cfg.enabled {
+        semester_label(
+            &modified,
+            semester_cfg.months_per_period,
+            &semester_cfg.folder_format,
+        )
+    } else {
+        String::new()
+    };
+
+    // ── Idempotency check (applies to both dry-run and real mode) ──
+    let dest_dir = target
+        .join(&classification.category)
+        .join(&classification.subcategory)
+        .join(&semester);
+    if let Ok(dest_canonical) = std::fs::canonicalize(&dest_dir)
+        && let Ok(source_canonical) = std::fs::canonicalize(path)
+        && source_canonical.starts_with(&dest_canonical)
+    {
+        log::debug!("Already organised: {}", path.display());
+        report.skipped += 1;
+        return;
+    }
+
+    if dry_run {
+        let dest = resolve_collision(&dest_dir, &filename, predicted);
+        predicted.insert(dest.clone());
+        report.moves.push(MoveRecord {
+            dest_relative: dest.strip_prefix(target).unwrap_or(&dest).to_path_buf(),
+            dry_run: true,
+        });
+        report.moved += 1;
+    } else {
+        let opts = MoveOptions {
+            source: path,
+            target,
+            classification: &classification,
+            semester: &semester,
+            filename: &filename,
+        };
+
+        match move_file(&opts) {
+            Ok(dest) => {
+                report.moves.push(MoveRecord {
+                    dest_relative: dest.strip_prefix(target).unwrap_or(&dest).to_path_buf(),
+                    dry_run: false,
+                });
+                report.moved += 1;
+            }
+            Err(SortcrabError::Skipped(reason)) => {
+                log::debug!("Skipped {}: {reason}", path.display());
+                report.skipped += 1;
+            }
+            Err(e) => {
+                log::error!("Failed to move {}: {e}", path.display());
+                report.errors += 1;
+            }
+        }
+    }
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
