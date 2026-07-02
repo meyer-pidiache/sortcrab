@@ -16,7 +16,7 @@ use std::path::{Path, PathBuf};
 /// # Example
 ///
 /// ```rust
-/// use sortcrab::core::mover::Classification;
+/// use sortcrab::core::moving::Classification;
 ///
 /// let class = Classification {
 ///     category: "Documents".into(),
@@ -60,7 +60,7 @@ pub struct MoveOptions<'a> {
 /// # Example
 ///
 /// ```rust,no_run
-/// use sortcrab::core::mover::{Classification, MoveOptions, move_file};
+/// use sortcrab::core::moving::{Classification, MoveOptions, move_file};
 /// use std::path::Path;
 ///
 /// let class = Classification {
@@ -186,7 +186,7 @@ mod tests {
 
     // ── test_basic_move ───────────────────────────────────────────
     #[test]
-    fn mover_basic_move() {
+    fn moving_basic_move() {
         let src_dir = tempdir().unwrap();
         let tgt_dir = tempdir().unwrap();
 
@@ -221,7 +221,7 @@ mod tests {
 
     // ── test_collision_numbering ───────────────────────────────────
     #[test]
-    fn mover_collision_numbering() {
+    fn moving_collision_numbering() {
         let src_dir = tempdir().unwrap();
         let tgt_dir = tempdir().unwrap();
 
@@ -270,7 +270,7 @@ mod tests {
 
     // ── test_skip_dotfiles ────────────────────────────────────────
     #[test]
-    fn mover_skip_dotfiles() {
+    fn moving_skip_dotfiles() {
         let src_dir = tempdir().unwrap();
         let tgt_dir = tempdir().unwrap();
 
@@ -309,7 +309,7 @@ mod tests {
 
     // ── test_skip_symlink ─────────────────────────────────────────
     #[test]
-    fn mover_skip_symlink() {
+    fn moving_skip_symlink() {
         let src_dir = tempdir().unwrap();
         let tgt_dir = tempdir().unwrap();
 
@@ -352,7 +352,7 @@ mod tests {
 
     // ── test_idempotent_skip ──────────────────────────────────────
     #[test]
-    fn mover_idempotent_skip() {
+    fn moving_idempotent_skip() {
         let tgt_dir = tempdir().unwrap();
 
         // Create a file already at its "organised" destination
