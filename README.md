@@ -55,7 +55,7 @@ After — organized by category, subcategory, and semester:
 │       └── 2026-I/
 │           └── vacation.mp4
 ├── Archives/
-│   └── Archives/
+│   └── Compressed/
 │       └── 2026-II/
 │           ├── archive.zip
 │           └── node_modules.zip
@@ -76,7 +76,7 @@ Pass `--no-semester` to sort without semester subdirectories:
 │   ├── Images/DSC_001.jpg
 │   ├── Audio/song.mp3
 │   └── Videos/vacation.mp4
-├── Archives/archive.zip
+├── Archives/Compressed/archive.zip
 └── Development/Rust/main.rs
 ```
 
@@ -186,10 +186,9 @@ The following are **skipped** and left in place:
 |----------|---------------|-------------------|
 | Documents | PDF, Word, Text, LaTeX, Presentations, Spreadsheets, Data | `.pdf`, `.docx`, `.txt`, `.tex`, `.pptx`, `.xlsx`, `.csv` |
 | Media | Images, Images/Vectors, Images/Photoshop, Images/Illustrator, Images/InDesign, Audio, Videos | `.jpg`, `.png`, `.svg`, `.psd`, `.mp3`, `.mp4` |
-| Archives | Archives | `.zip`, `.rar`, `.7z`, `.tar.gz` |
-| Packages | Packages | `.deb`, `.rpm`, `.exe`, `.dmg`, `.AppImage` |
+| Archives | Compressed, DiskImages, Torrents, Packages | `.zip`, `.rar`, `.7z`, `.tar`, `.gz`, `.bz2`, `.xz`, `.iso`, `.img`, `.torrent`, `.deb`, `.rpm`, `.exe`, `.msi`, `.dmg`, `.pkg`, `.AppImage` |
 | Development | Scripts, Python, JavaScript, TypeScript, Java, C, C++, C#, Go, Rust, Web, Databases, Docker | `.py`, `.js`, `.ts`, `.rs`, `.go`, `.html`, `.sql` |
-| Other | Torrents, DiskImages, VirtualMachines | `.torrent`, `.iso`, `.vdi` |
+| Other | VirtualMachines | `.vdi`, `.vbox` |
 
 sortcrab ships with approximately 80 built-in extension-to-category mappings. You can
 override or extend any of them in the configuration file.
