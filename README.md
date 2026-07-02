@@ -7,78 +7,7 @@ it into a structured destination tree: `{category}/{subcategory}/{semester}/{fil
 
 ## What it looks like
 
-Before — a chaotic downloads folder:
-
-```text
-~/Downloads
-├── report-final.pdf
-├── DSC_001.jpg
-├── DSC_002.jpg
-├── homework_math.pdf
-├── class_notes.docx
-├── vacation.mp4
-├── screenshot.png
-├── song.mp3
-├── budget.xlsx
-├── archive.zip
-├── main.rs
-└── node_modules.zip
-```
-
-After — organized by category, subcategory, and semester:
-
-```text
-~/Downloads
-├── Documents/
-│   ├── PDF/
-│   │   ├── 2025-II/
-│   │   │   └── report-final.pdf
-│   │   └── 2026-I/
-│   │       └── homework_math.pdf
-│   ├── Word/
-│   │   └── 2026-I/
-│   │       └── class_notes.docx
-│   └── Spreadsheets/
-│       └── 2025-II/
-│           └── budget.xlsx
-├── Media/
-│   ├── Images/
-│   │   ├── 2025-II/
-│   │   │   ├── DSC_001.jpg
-│   │   │   └── DSC_002.jpg
-│   │   └── 2026-I/
-│   │       └── screenshot.png
-│   ├── Audio/
-│   │   └── 2026-I/
-│   │       └── song.mp3
-│   └── Videos/
-│       └── 2026-I/
-│           └── vacation.mp4
-├── Archives/
-│   └── Compressed/
-│       └── 2026-II/
-│           ├── archive.zip
-│           └── node_modules.zip
-└── Development/
-    └── Rust/
-        └── 2025-II/
-            └── main.rs
-```
-
-Pass `--no-semester` to sort without semester subdirectories:
-
-```text
-~/Downloads
-├── Documents/
-│   ├── PDF/report-final.pdf
-│   └── Word/class_notes.docx
-├── Media/
-│   ├── Images/DSC_001.jpg
-│   ├── Audio/song.mp3
-│   └── Videos/vacation.mp4
-├── Archives/Compressed/archive.zip
-└── Development/Rust/main.rs
-```
+![sortcrab demo](assets/sortcrab-demo.gif)
 
 ## Quick start
 
