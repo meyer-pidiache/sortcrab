@@ -7,6 +7,7 @@ pub mod classify;
 pub mod moving;
 pub mod semester;
 
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -101,6 +102,10 @@ pub fn sort_files(
     }
 
     let mut report = SortReport::default();
+
+    // Track predicted destinations during dry-run so collision resolution
+    // produces correct -1, -2, … suffixes for same-batch conflicts.
+    let mut predicted: HashSet<PathBuf> = HashSet::new();
 
     let entries = fs::read_dir(source)?;
 
@@ -201,7 +206,8 @@ pub fn sort_files(
         }
 
         if dry_run {
-            let dest = resolve_collision(&dest_dir, &filename);
+            let dest = resolve_collision(&dest_dir, &filename, &predicted);
+            predicted.insert(dest.clone());
             report.moves.push(MoveRecord {
                 dest_relative: dest.strip_prefix(target).unwrap_or(&dest).to_path_buf(),
                 dry_run: true,
