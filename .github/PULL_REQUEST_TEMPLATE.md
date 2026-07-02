@@ -41,7 +41,7 @@ The issue will auto-close when this PR is merged.
 - [ ] I have added or updated tests (or verified this is not needed for my change)
 - [ ] I have added or updated documentation (if applicable)
 
-<!-- This repository uses conventional commits. Commits will be squashed with the PR title as the final message. -->
+<!-- This repository uses conventional commits. Commits will be rebased onto main with the final commit message matching the PR title. -->
 
 ## Migration guide (if breaking change)
 
