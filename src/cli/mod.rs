@@ -122,10 +122,7 @@ pub fn execute_sort(cli: &Cli) -> Result<(), SortcrabError> {
     let report = sort_files(&source, &target, &config.rules, dry_run, &semester_cfg)?;
 
     if !cli.quiet {
-        let action = if dry_run { "Would sort" } else { "Sorted" };
-        println!("\n{action} {} files:", report.moves.len());
-
-        display::print_move_tree(&report.moves);
+        display::print_move_tree(&report.moves, &target);
 
         if dry_run {
             println!(

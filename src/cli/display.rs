@@ -4,11 +4,12 @@
 //! box-drawing characters, similar to the `tree` command.
 
 use std::collections::BTreeMap;
+use std::path::Path;
 
 use crate::core::MoveRecord;
 
 /// Print a tree of move actions grouped by destination directory.
-pub fn print_move_tree(actions: &[MoveRecord]) {
+pub fn print_move_tree(actions: &[MoveRecord], target: &Path) {
     if actions.is_empty() {
         return;
     }
@@ -22,6 +23,8 @@ pub fn print_move_tree(actions: &[MoveRecord]) {
             .collect();
         root.insert(&components);
     }
+
+    println!("{}", target.display());
 
     let nodes = convert_and_sort(root);
     let count = nodes.len();
