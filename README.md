@@ -94,41 +94,27 @@ brew install meyer-pidiache/sortcrab/sortcrab
 cargo install sortcrab
 ```
 
-**Option 3 — Direct download**
+**Option 3 — Direct download** (auto-detects OS and architecture)
 
-Linux (x86_64):
 ```bash
-curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-x86_64-unknown-linux-gnu.tar.gz | tar xz
-sudo mv sortcrab /usr/local/bin/
+curl --proto '=https' --tlsv1.2 -fsSL https://github.com/meyer-pidiache/sortcrab/releases/latest/download/install.sh | sh
 ```
 
-Linux (aarch64):
-```bash
-curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-aarch64-unknown-linux-gnu.tar.gz | tar xz
-sudo mv sortcrab /usr/local/bin/
-```
+The script auto-detects your OS, architecture, and libc, downloads the correct binary
+from the latest GitHub release, verifies the SHA-256 checksum, and installs it to
+`~/.local/bin/`. No `sudo` required.
 
-macOS (Apple Silicon):
-```bash
-curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-aarch64-apple-darwin.tar.gz | tar xz
-sudo mv sortcrab /usr/local/bin/
-```
 
-macOS (Intel):
-```bash
-curl -L https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-x86_64-apple-darwin.tar.gz | tar xz
-sudo mv sortcrab /usr/local/bin/
-```
+Flags:
 
-Windows (PowerShell):
-```powershell
-curl.exe -LO https://github.com/meyer-pidiache/sortcrab/releases/latest/download/sortcrab-x86_64-pc-windows-msvc.tar.gz
-tar -xf sortcrab-x86_64-pc-windows-msvc.tar.gz
-New-Item -ItemType Directory -Force $env:LOCALAPPDATA\Programs\sortcrab
-move sortcrab.exe $env:LOCALAPPDATA\Programs\sortcrab\
-```
-> Add `%LOCALAPPDATA%\Programs\sortcrab\` to your `PATH` to use `sortcrab`
-> from any terminal.
+| Flag | Description |
+|------|-------------|
+| `--version <ver>` | Install a specific version (e.g. `--version 1.2.0`) |
+| `--dry-run` | Preview what would happen without writing files |
+| `--no-modify-path` | Skip adding `~/.local/bin/` to `PATH` in shell config |
+
+> On Windows, use **Git Bash** or **WSL** — the script supports MINGW64/MSYS2
+> environments. PowerShell users see the [install.ps1](https://github.com/meyer-pidiache/sortcrab/releases/latest/download/install.ps1) option.
 
 **Option 4 — Build from source**
 ```bash
