@@ -32,6 +32,32 @@ jobs:
       - uses: taiki-e/install-action@cargo-llvm-cov
       - name: Generate coverage report
         run: cargo llvm-cov --all-features --lcov --output-path lcov.info
+      - name: Convert LCOV to SonarQube generic coverage XML
+        run: |
+          python3 -c "
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
+
+root = ET.Element('coverage', version='1')
+cur_file, lines = None, []
+
+for line in open('lcov.info'):
+    line = line.strip()
+    if line.startswith('SF:'):
+        cur_file = line[3:]
+        lines = []
+    elif line.startswith('DA:'):
+        parts = line[3:].split(',')
+        lines.append((parts[0], int(parts[1]) > 0))
+    elif line == 'end_of_record' and cur_file:
+        fe = ET.SubElement(root, 'file', path=cur_file)
+        for n, c in lines:
+            ET.SubElement(fe, 'lineToCover', lineNumber=n, covered=str(c).lower())
+        cur_file, lines = None, []
+
+with open('sonarqube-coverage.xml', 'w') as f:
+    f.write(minidom.parseString(ET.tostring(root)).toprettyxml(indent='  '))
+"
       - name: SonarQube Cloud Scan
         uses: SonarSource/sonarqube-scan-action@v8
         env:
