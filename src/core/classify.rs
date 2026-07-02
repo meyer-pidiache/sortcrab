@@ -4,7 +4,7 @@
 //! configuration. The main entry point is [`classify_file`].
 
 use crate::config::rules::{Rule, RulesConfig};
-use crate::core::mover::Classification;
+use crate::core::moving::Classification;
 use crate::error::SortcrabError;
 use std::path::Path;
 

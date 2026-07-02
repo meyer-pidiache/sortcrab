@@ -4,7 +4,7 @@
 //! classification, semester, and moving subsystems.
 
 pub mod classify;
-pub mod mover;
+pub mod moving;
 pub mod semester;
 
 use std::fs;
@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use crate::config::SemesterConfig;
 use crate::config::rules::RulesConfig;
 use crate::core::classify::classify_file;
-use crate::core::mover::{MoveOptions, move_file, resolve_collision};
+use crate::core::moving::{MoveOptions, move_file, resolve_collision};
 use crate::core::semester::semester_label;
 use crate::error::SortcrabError;
 
