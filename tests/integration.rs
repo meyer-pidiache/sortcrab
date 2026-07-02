@@ -320,7 +320,7 @@ fn test_init_command() {
     );
 
     // Parse the config path from init's output (last non‑empty line).
-    // tracing info lines may also appear on stdout, so we can't just
+    // log::info! lines may also appear on stdout, so we can't just
     // strip_prefix from the head.
     let stdout = String::from_utf8_lossy(&output.stdout);
     let config_path = stdout
