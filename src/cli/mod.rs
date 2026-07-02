@@ -132,13 +132,23 @@ pub fn execute_sort(cli: &Cli) -> Result<(), SortcrabError> {
         );
     }
 
-    tracing::info!(
-        "Sort complete — total: {}, moved: {}, skipped: {}, errors: {}",
-        report.total,
-        report.moved,
-        report.skipped,
-        report.errors,
-    );
+    if dry_run {
+        tracing::info!(
+            "Dry run — total: {}, would move: {}, skipped: {}, errors: {}",
+            report.total,
+            report.moved,
+            report.skipped,
+            report.errors,
+        );
+    } else {
+        tracing::info!(
+            "Sort complete — total: {}, moved: {}, skipped: {}, errors: {}",
+            report.total,
+            report.moved,
+            report.skipped,
+            report.errors,
+        );
+    }
 
     Ok(())
 }
