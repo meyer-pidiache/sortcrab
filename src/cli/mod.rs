@@ -6,7 +6,7 @@
 pub mod args;
 mod display;
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use crate::cli::args::{Cli, Commands, ConfigArgs};
 use crate::config::{ConfigManager, SemesterConfig};
@@ -49,28 +49,6 @@ fn handle_config(args: ConfigArgs) -> Result<(), SortcrabError> {
     Ok(())
 }
 
-/// Expand a leading tilde `~` in a path to the user's home directory.
-///
-/// This is needed because clap's `default_value = "~"` does not go through
-/// shell expansion — the literal tilde must be resolved programmatically.
-fn resolve_home(path: &Path) -> PathBuf {
-    let s = path.to_string_lossy();
-    if let Some(stripped) = s.strip_prefix("~") {
-        if let Ok(home) = std::env::var("HOME") {
-            let after = stripped.trim_start_matches('/');
-            if after.is_empty() {
-                PathBuf::from(home)
-            } else {
-                PathBuf::from(home).join(after)
-            }
-        } else {
-            path.to_path_buf()
-        }
-    } else {
-        path.to_path_buf()
-    }
-}
-
 /// Execute the sort command.
 ///
 /// Resolves the target directory (defaulting to the source directory for
@@ -91,11 +69,11 @@ fn resolve_home(path: &Path) -> PathBuf {
 /// execute_sort(&cli).unwrap();
 /// ```
 pub fn execute_sort(cli: &Cli) -> Result<(), SortcrabError> {
-    let source = resolve_home(&cli.source);
+    let source = PathBuf::from(shellexpand::tilde(&cli.source.to_string_lossy()).as_ref());
     let target: PathBuf = cli
         .target
         .as_ref()
-        .map(|t| resolve_home(t))
+        .map(|t| PathBuf::from(shellexpand::tilde(&t.to_string_lossy()).as_ref()))
         .unwrap_or_else(|| source.clone());
 
     let config = ConfigManager::load()?;
