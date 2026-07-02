@@ -4,6 +4,7 @@
 //! to its organised destination.
 
 use crate::error::SortcrabError;
+use std::collections::HashSet;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
@@ -115,7 +116,7 @@ pub fn move_file(opts: &MoveOptions<'_>) -> Result<PathBuf, SortcrabError> {
     fs::create_dir_all(&dest_dir)?;
 
     // ── Resolve filename collisions ────────────────────────────────
-    let dest = resolve_collision(&dest_dir, opts.filename);
+    let dest = resolve_collision(&dest_dir, opts.filename, &HashSet::new());
 
     // ── Perform the move ───────────────────────────────────────────
     // Try a fast rename first.  If the source and destination live on
@@ -134,11 +135,18 @@ pub fn move_file(opts: &MoveOptions<'_>) -> Result<PathBuf, SortcrabError> {
 
 /// Resolve a filename collision by appending an incrementing counter.
 ///
-/// If `filename` already exists under `dest_dir`, tries
-/// `file-1.ext`, `file-2.ext`, … until a free name is found.
-pub(crate) fn resolve_collision(dest_dir: &Path, filename: &str) -> PathBuf {
+/// If `filename` already exists under `dest_dir` (or is in `predicted`),
+/// tries `file-1.ext`, `file-2.ext`, … until a free name is found.
+///
+/// `predicted` is used during dry-run to track destinations that have been
+/// claimed in-memory without actually writing to the filesystem.
+pub(crate) fn resolve_collision(
+    dest_dir: &Path,
+    filename: &str,
+    predicted: &HashSet<PathBuf>,
+) -> PathBuf {
     let path = dest_dir.join(filename);
-    if !path.exists() {
+    if !path.exists() && !predicted.contains(&path) {
         return path;
     }
 
@@ -154,7 +162,7 @@ pub(crate) fn resolve_collision(dest_dir: &Path, filename: &str) -> PathBuf {
     loop {
         let name = format!("{}-{}{}", stem, counter, ext);
         let candidate = dest_dir.join(&name);
-        if !candidate.exists() {
+        if !candidate.exists() && !predicted.contains(&candidate) {
             return candidate;
         }
         counter += 1;
