@@ -56,41 +56,32 @@ rm -f "$DOWNLOADS"/report-final.pdf \
 # ── Semester 2025-II (Jul–Dec 2025) ──────────────────────────────
 
 # Documents/PDF/2025-II/report-final.pdf
-touch "$DOWNLOADS"/report-final.pdf
 touch -t 202510151200 "$DOWNLOADS"/report-final.pdf
 
 # Documents/Spreadsheets/2025-II/budget.xlsx
-touch "$DOWNLOADS"/budget.xlsx
 touch -t 202508201200 "$DOWNLOADS"/budget.xlsx
 
 # Media/Images/2025-II/DSC_001.jpg
-touch "$DOWNLOADS"/DSC_001.jpg
 touch -t 202509101200 "$DOWNLOADS"/DSC_001.jpg
 
 # Media/Images/2025-II/DSC_002.jpg
-touch "$DOWNLOADS"/DSC_002.jpg
 touch -t 202509111200 "$DOWNLOADS"/DSC_002.jpg
 
 # ── Semester 2026-I (Jan–Jun 2026) ────────────────────────────────
 
 # Documents/PDF/2026-I/homework_math.pdf
-touch "$DOWNLOADS"/homework_math.pdf
 touch -t 202603151200 "$DOWNLOADS"/homework_math.pdf
 
 # Documents/Word/2026-I/class_notes.docx
-touch "$DOWNLOADS"/class_notes.docx
 touch -t 202604101200 "$DOWNLOADS"/class_notes.docx
 
 # Media/Images/2026-I/screenshot.png
-touch "$DOWNLOADS"/screenshot.png
 touch -t 202602201200 "$DOWNLOADS"/screenshot.png
 
 # Media/Audio/2026-I/song.mp3
-touch "$DOWNLOADS"/song.mp3
 touch -t 202605011200 "$DOWNLOADS"/song.mp3
 
 # Media/Videos/2026-I/vacation.mp4
-touch "$DOWNLOADS"/vacation.mp4
 touch -t 202606151200 "$DOWNLOADS"/vacation.mp4
 
 echo ""
