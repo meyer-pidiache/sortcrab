@@ -231,5 +231,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.plan.outputs.tag }}
-          files: artifacts/**/*
+          files: |
+            artifacts/sortcrab-*/**
+            artifacts/install.sh
           generate_release_notes: true

@@ -250,7 +250,7 @@ install_binary() {
     verify_sha256
 
     echo_info "Extracting archive..."
-    tar xzf "${_tmpdir}/${ARCHIVE_NAME}" -C "$_tmpdir" || die "Failed to extract archive (corrupted download?)."
+    tar xf "${_tmpdir}/${ARCHIVE_NAME}" -C "$_tmpdir" || die "Failed to extract archive (corrupted download?)."
 
     mkdir -p "$install_dir" || die "Failed to create install directory: ${install_dir}"
 
