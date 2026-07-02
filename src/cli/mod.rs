@@ -4,6 +4,7 @@
 //! and implements the handler functions that run each command.
 
 pub mod args;
+mod display;
 
 use std::path::{Path, PathBuf};
 
@@ -120,34 +121,23 @@ pub fn execute_sort(cli: &Cli) -> Result<(), SortcrabError> {
 
     let report = sort_files(&source, &target, &config.rules, dry_run, &semester_cfg)?;
 
-    if dry_run {
-        println!(
-            "Dry run: would sort {} files, skip {}, {} errors",
-            report.moved, report.skipped, report.errors
-        );
-    } else {
-        println!(
-            "Sorted {} files, skipped {}, {} errors",
-            report.moved, report.skipped, report.errors
-        );
-    }
+    if !cli.quiet {
+        let action = if dry_run { "Would sort" } else { "Sorted" };
+        println!("\n{action} {} files:", report.moves.len());
 
-    if dry_run {
-        tracing::info!(
-            "Dry run — total: {}, would move: {}, skipped: {}, errors: {}",
-            report.total,
-            report.moved,
-            report.skipped,
-            report.errors,
-        );
-    } else {
-        tracing::info!(
-            "Sort complete — total: {}, moved: {}, skipped: {}, errors: {}",
-            report.total,
-            report.moved,
-            report.skipped,
-            report.errors,
-        );
+        display::print_move_tree(&report.moves);
+
+        if dry_run {
+            println!(
+                "\nDry run: would sort {} files, skip {}, {} errors",
+                report.moved, report.skipped, report.errors
+            );
+        } else {
+            println!(
+                "\nSorted {} files, skipped {}, {} errors",
+                report.moved, report.skipped, report.errors
+            );
+        }
     }
 
     Ok(())
