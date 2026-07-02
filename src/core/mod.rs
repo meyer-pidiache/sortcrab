@@ -8,7 +8,7 @@ pub mod mover;
 pub mod semester;
 
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::config::SemesterConfig;
 use crate::config::rules::RulesConfig;
@@ -16,6 +16,15 @@ use crate::core::classify::classify_file;
 use crate::core::mover::{MoveOptions, move_file, resolve_collision};
 use crate::core::semester::semester_label;
 use crate::error::SortcrabError;
+
+/// A recorded move action, used for tree display rendering.
+#[derive(Debug, Clone)]
+pub struct MoveRecord {
+    /// The destination path relative to the target directory.
+    pub dest_relative: PathBuf,
+    /// Whether this was a dry-run prediction rather than an actual move.
+    pub dry_run: bool,
+}
 
 /// Statistics collected during a sort operation.
 ///
@@ -29,6 +38,7 @@ use crate::error::SortcrabError;
 ///     moved: 8,
 ///     skipped: 1,
 ///     errors: 1,
+///     moves: vec![],
 /// };
 /// assert_eq!(report.moved + report.skipped + report.errors, report.total);
 /// ```
@@ -42,6 +52,8 @@ pub struct SortReport {
     pub skipped: usize,
     /// Files that encountered an error (unknown extension, I/O failure, etc.).
     pub errors: usize,
+    /// Individual move records for tree display rendering.
+    pub moves: Vec<MoveRecord>,
 }
 
 /// Scan `source`, classify each file by extension, compute the semester from
@@ -190,7 +202,10 @@ pub fn sort_files(
 
         if dry_run {
             let dest = resolve_collision(&dest_dir, &filename);
-            tracing::info!("Would move {} -> {}", path.display(), dest.display());
+            report.moves.push(MoveRecord {
+                dest_relative: dest.strip_prefix(target).unwrap_or(&dest).to_path_buf(),
+                dry_run: true,
+            });
             report.moved += 1;
         } else {
             let opts = MoveOptions {
@@ -203,7 +218,10 @@ pub fn sort_files(
 
             match move_file(&opts) {
                 Ok(dest) => {
-                    tracing::info!("Moved {} -> {}", path.display(), dest.display());
+                    report.moves.push(MoveRecord {
+                        dest_relative: dest.strip_prefix(target).unwrap_or(&dest).to_path_buf(),
+                        dry_run: false,
+                    });
                     report.moved += 1;
                 }
                 Err(SortcrabError::Skipped(reason)) => {
