@@ -1,6 +1,17 @@
+## Related Issues
+
+<!--
+Link any issues this PR addresses using one of the keywords below.
+The issue will auto-close when this PR is merged.
+
+    Closes #123
+    Fixes #456
+    Resolves #789
+-->
+
 ## Description
 
-<!-- Describe the change and the motivation behind it. What problem does this solve, and why is this the right approach? If this closes an issue, write "Closes #123". -->
+<!-- Describe the change and the motivation behind it. What problem does this solve, and why is this the right approach? -->
 
 ## Type of change
 
