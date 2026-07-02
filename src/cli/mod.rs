@@ -126,7 +126,7 @@ pub fn execute_sort(cli: &Cli) -> Result<(), SortcrabError> {
 
         if dry_run {
             println!(
-                "\nDry run: would sort {} files, skip {}, {} errors",
+                "\nDry run: would move {} files, skip {}, {} errors",
                 report.moved, report.skipped, report.errors
             );
         } else {
