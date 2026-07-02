@@ -36,3 +36,6 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          # Unset RUSTFLAGS so the SonarQube Clippy sensor doesn't
+          # interpret -D warnings as errors during its internal run.
+          RUSTFLAGS: ''
