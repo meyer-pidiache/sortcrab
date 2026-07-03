@@ -35,6 +35,10 @@ pub struct Cli {
     #[arg(long)]
     pub dry_run: bool,
 
+    /// Recursively descend into subdirectories
+    #[arg(short = 'r', long)]
+    pub recursive: bool,
+
     /// Disable semester-based subdirectory grouping
     #[arg(long)]
     pub no_semester: bool,

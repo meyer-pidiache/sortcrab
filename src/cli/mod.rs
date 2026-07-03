@@ -78,6 +78,7 @@ pub fn execute_sort(cli: &Cli) -> Result<(), SortcrabError> {
 
     let config = ConfigManager::load()?;
     let dry_run = cli.dry_run;
+    let recursive = cli.recursive;
 
     // Disable semester grouping when the CLI flag overrides the config
     let semester_cfg = if cli.no_semester {
@@ -90,14 +91,22 @@ pub fn execute_sort(cli: &Cli) -> Result<(), SortcrabError> {
     };
 
     log::debug!(
-        "Sort source: {:?}, target: {:?}, semester: {}{}",
+        "Sort source: {:?}, target: {:?}, semester: {}{}{}",
         source,
         target,
         if semester_cfg.enabled { "on" } else { "off" },
-        if dry_run { " (dry run)" } else { "" }
+        if dry_run { " (dry run)" } else { "" },
+        if recursive { " (recursive)" } else { "" }
     );
 
-    let report = sort_files(&source, &target, &config.rules, dry_run, &semester_cfg)?;
+    let report = sort_files(
+        &source,
+        &target,
+        &config.rules,
+        dry_run,
+        &semester_cfg,
+        recursive,
+    )?;
 
     if !cli.quiet {
         display::print_move_tree(&report.moves, &target);
