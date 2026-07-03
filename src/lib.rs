@@ -34,6 +34,8 @@ pub mod error;
 
 use clap::Parser;
 
+use crate::error::SortcrabError;
+
 /// Initialize logging based on verbosity level.
 ///
 /// - Default: `info` level
@@ -78,16 +80,16 @@ pub fn init_logging(verbose: bool, quiet: bool) {
 /// `main.rs`.
 ///
 /// # Errors
-/// Returns a boxed error if CLI argument parsing or command execution fails.
+/// Returns a [`SortcrabError`] if CLI argument parsing or command execution fails.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// sortcrab::run().unwrap();
 /// ```
-pub fn run() -> Result<(), Box<dyn std::error::Error>> {
+pub fn run() -> Result<(), SortcrabError> {
     let cli = cli::args::Cli::parse();
-    cli::run(cli).map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+    cli::run(cli)
 }
 
 #[cfg(test)]
