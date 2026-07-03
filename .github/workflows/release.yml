@@ -204,6 +204,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install git-cliff
+        uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff
+
+      - name: Generate release notes
+        run: |
+          TAG="${{ needs.plan.outputs.tag }}"
+          git cliff --unreleased --tag "$TAG" --strip all -o release-notes.md
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-notes
+          path: release-notes.md
+
       - name: Create and push tag
         run: |
           TAG="${{ needs.plan.outputs.tag }}"
@@ -231,7 +247,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.plan.outputs.tag }}
+          body_path: artifacts/release-notes/release-notes.md
           files: |
             artifacts/sortcrab-*/**
             artifacts/install.sh
-          generate_release_notes: true
