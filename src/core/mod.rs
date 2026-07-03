@@ -73,7 +73,11 @@ pub struct SortReport {
 /// When `dry_run` is `true`, no files are actually moved — the intended
 /// destinations are logged via `log::info!`.
 ///
-/// Directories are silently skipped and do **not** count toward the total.
+/// When `recursive` is `true`, files in subdirectories are also processed.
+/// The source directory structure is not preserved — all files are moved into
+/// the same flat category hierarchy regardless of their source depth.
+///
+/// Directories are silently skipped when `recursive` is `false`.
 /// Per-file errors are collected in the returned [`SortReport`] — the function
 /// never fails on individual items. If the source path is not a directory an
 /// [`Err`] is returned immediately.
@@ -91,7 +95,7 @@ pub struct SortReport {
 ///
 /// let rules = RulesConfig::default();
 /// let semester = SemesterConfig::default();
-/// let report = sort_files(Path::new("/tmp/source"), Path::new("/tmp/target"), &rules, false, &semester)?;
+/// let report = sort_files(Path::new("/tmp/source"), Path::new("/tmp/target"), &rules, false, &semester, false)?;
 /// println!("Moved {} files", report.moved);
 /// # Ok::<_, sortcrab::error::SortcrabError>(())
 /// ```
@@ -101,6 +105,7 @@ pub fn sort_files(
     rules: &RulesConfig,
     dry_run: bool,
     semester_cfg: &SemesterConfig,
+    recursive: bool,
 ) -> Result<SortReport, SortcrabError> {
     if !source.is_dir() {
         return Err(SortcrabError::InvalidPath(source.to_path_buf()));
@@ -120,7 +125,19 @@ pub fn sort_files(
         };
 
         if path.is_dir() {
-            log::debug!("Skipping directory: {}", path.display());
+            if recursive && !is_symlink_dir(&path) {
+                process_directory_recursive(
+                    &path,
+                    target,
+                    rules,
+                    dry_run,
+                    semester_cfg,
+                    &mut report,
+                    &mut predicted,
+                );
+            } else {
+                log::debug!("Skipping directory: {}", path.display());
+            }
             continue;
         }
 
@@ -138,6 +155,84 @@ pub fn sort_files(
     }
 
     Ok(report)
+}
+
+fn is_symlink_dir(path: &Path) -> bool {
+    fs::symlink_metadata(path)
+        .map(|m| m.is_symlink())
+        .unwrap_or(false)
+}
+
+/// Recursively process files in `dir` and all its subdirectories.
+///
+/// Symlink directories and dotfile directories (e.g. `.git`, `.hidden`) are
+/// not traversed.  Individual file symlinks are already handled by
+/// [`classify_or_skip`].
+fn process_directory_recursive(
+    dir: &Path,
+    target: &Path,
+    rules: &RulesConfig,
+    dry_run: bool,
+    semester_cfg: &SemesterConfig,
+    report: &mut SortReport,
+    predicted: &mut HashSet<PathBuf>,
+) {
+    // Skip dotfile directories (e.g. .git, .hidden) at any level
+    if dir
+        .file_name()
+        .and_then(|n| n.to_str())
+        .is_some_and(|n| n.starts_with('.'))
+    {
+        log::debug!("Skipping dotfile directory: {}", dir.display());
+        return;
+    }
+
+    let Ok(entries) = fs::read_dir(dir) else {
+        return;
+    };
+
+    for entry in entries {
+        let Some(path) = resolve_entry(entry, report) else {
+            continue;
+        };
+
+        if path.is_dir() {
+            // Don't follow symlinked directories
+            if is_symlink_dir(&path) {
+                log::debug!("Skipping symlink directory: {}", path.display());
+                continue;
+            }
+            // Skip dotfile directories (e.g. .git, .cache)
+            if path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .is_some_and(|n| n.starts_with('.'))
+            {
+                log::debug!("Skipping dotfile directory: {}", path.display());
+                continue;
+            }
+            process_directory_recursive(
+                &path,
+                target,
+                rules,
+                dry_run,
+                semester_cfg,
+                report,
+                predicted,
+            );
+        } else {
+            report.total += 1;
+            process_single_file(
+                &path,
+                target,
+                rules,
+                dry_run,
+                semester_cfg,
+                report,
+                predicted,
+            );
+        }
+    }
 }
 
 fn resolve_entry(entry: Result<DirEntry, io::Error>, report: &mut SortReport) -> Option<PathBuf> {
@@ -391,8 +486,15 @@ mod tests {
         setup_source_file(src.path(), "main.rs", b"fn main() {}");
 
         let rules = RulesConfig::default();
-        let report =
-            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
 
         assert_eq!(report.total, 3);
         assert_eq!(report.moved, 3);
@@ -422,8 +524,15 @@ mod tests {
         setup_source_file(src.path(), "report.pdf", b"pdf content");
 
         let rules = RulesConfig::default();
-        let _report =
-            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
+        let _report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
 
         let sem = current_semester();
         let expected = tgt.path().join(format!("Documents/PDF/{sem}/report.pdf"));
@@ -438,8 +547,15 @@ mod tests {
         setup_source_file(src.path(), "report.pdf", b"pdf content");
 
         let rules = RulesConfig::default();
-        let report =
-            sort_files(src.path(), tgt.path(), &rules, false, &disabled_semester()).unwrap();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &disabled_semester(),
+            false,
+        )
+        .unwrap();
 
         assert_eq!(report.total, 1);
         assert_eq!(report.moved, 1);
@@ -459,8 +575,15 @@ mod tests {
         let tgt = tempdir().unwrap();
 
         let rules = RulesConfig::default();
-        let report =
-            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
 
         assert_eq!(report.total, 0);
         assert_eq!(report.moved, 0);
@@ -477,8 +600,15 @@ mod tests {
         setup_source_file(src.path(), "visible.pdf", b"visible");
 
         let rules = RulesConfig::default();
-        let report =
-            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
 
         assert_eq!(report.total, 2);
         assert_eq!(report.moved, 1);
@@ -496,8 +626,15 @@ mod tests {
         setup_source_file(src.path(), "data.xyz123", b"unknown");
 
         let rules = RulesConfig::default();
-        let report =
-            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
 
         assert_eq!(report.total, 1);
         assert_eq!(report.moved, 0);
@@ -530,8 +667,15 @@ mod tests {
         );
 
         let rules = RulesConfig::default();
-        let report =
-            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
 
         // On unix the symlink is present so both entries are counted;
         // on non-unix only real.pdf exists.
@@ -572,7 +716,7 @@ mod tests {
         let file = setup_source_file(src.path(), "file.pdf", b"x");
 
         let rules = RulesConfig::default();
-        let result = sort_files(&file, src.path(), &rules, false, &default_semester());
+        let result = sort_files(&file, src.path(), &rules, false, &default_semester(), false);
 
         assert!(result.is_err());
         match result.unwrap_err() {
@@ -595,8 +739,15 @@ mod tests {
         setup_source_file(src.path(), "song.mp3", b"mp3");
 
         let rules = RulesConfig::default();
-        let report =
-            sort_files(src.path(), tgt.path(), &rules, false, &default_semester()).unwrap();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
 
         assert_eq!(report.total, 4);
         assert_eq!(report.moved, 2); // doc.pdf, song.mp3
@@ -618,7 +769,15 @@ mod tests {
         setup_source_file(src.path(), "song.mp3", b"mp3");
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, true, &default_semester()).unwrap();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            true,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
 
         // All files counted, sources must still exist
         assert_eq!(report.total, 2);
@@ -639,7 +798,15 @@ mod tests {
         setup_source_file(src.path(), "visible.pdf", b"visible");
 
         let rules = RulesConfig::default();
-        let report = sort_files(src.path(), tgt.path(), &rules, true, &default_semester()).unwrap();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            true,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
 
         // Dotfile is skipped even in dry-run mode
         assert_eq!(report.total, 2);
@@ -660,8 +827,15 @@ mod tests {
         setup_source_file(src.path(), "doc.pdf", b"pdf");
 
         let rules = RulesConfig::default();
-        let report =
-            sort_files(src.path(), tgt.path(), &rules, true, &disabled_semester()).unwrap();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            true,
+            &disabled_semester(),
+            false,
+        )
+        .unwrap();
 
         assert_eq!(report.total, 1);
         assert_eq!(report.moved, 1);
@@ -681,10 +855,176 @@ mod tests {
         fs::write(&file_path, b"content").unwrap();
 
         let rules = RulesConfig::default();
-        let report = sort_files(&src, tgt.path(), &rules, false, &default_semester()).unwrap();
+        let report =
+            sort_files(&src, tgt.path(), &rules, false, &default_semester(), false).unwrap();
 
         assert_eq!(report.total, 1);
         assert_eq!(report.skipped, 1);
         assert_eq!(report.moved, 0);
+    }
+
+    // ── Recursive mode ──────────────────────────────────────────────
+
+    #[test]
+    fn test_recursive_processes_nested_files() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        // Create nested structure: src/subdir/inner.pdf + src/root.pdf
+        fs::create_dir(src.path().join("subdir")).unwrap();
+        setup_source_file(src.path().join("subdir").as_ref(), "inner.pdf", b"inner");
+        setup_source_file(src.path(), "root.pdf", b"root");
+
+        let rules = RulesConfig::default();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            true,
+        )
+        .unwrap();
+
+        assert_eq!(report.total, 2);
+        assert_eq!(report.moved, 2);
+        assert_eq!(report.skipped, 0);
+        assert_eq!(report.errors, 0);
+
+        assert!(has_file_under(
+            &tgt.path().join("Documents/PDF"),
+            "root.pdf"
+        ));
+        assert!(has_file_under(
+            &tgt.path().join("Documents/PDF"),
+            "inner.pdf"
+        ));
+    }
+
+    #[test]
+    fn test_recursive_deeply_nested() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        // a/b/c/deep.txt
+        fs::create_dir_all(src.path().join("a/b/c")).unwrap();
+        setup_source_file(src.path().join("a/b/c").as_ref(), "deep.txt", b"deep");
+
+        let rules = RulesConfig::default();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            true,
+        )
+        .unwrap();
+
+        assert_eq!(report.total, 1);
+        assert_eq!(report.moved, 1);
+        assert_eq!(report.skipped, 0);
+
+        assert!(has_file_under(
+            &tgt.path().join("Documents/Text"),
+            "deep.txt"
+        ));
+    }
+
+    #[test]
+    fn test_recursive_dotfile_dir_skipped() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        // .hidden directory with a file inside — should not be traversed
+        fs::create_dir(src.path().join(".hidden")).unwrap();
+        setup_source_file(src.path().join(".hidden").as_ref(), "secret.pdf", b"secret");
+        // Regular nested file
+        fs::create_dir(src.path().join("docs")).unwrap();
+        setup_source_file(src.path().join("docs").as_ref(), "readme.pdf", b"readme");
+
+        let rules = RulesConfig::default();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            true,
+        )
+        .unwrap();
+
+        assert_eq!(report.total, 1);
+        assert_eq!(report.moved, 1);
+        assert_eq!(report.skipped, 0);
+
+        assert!(has_file_under(
+            &tgt.path().join("Documents/PDF"),
+            "readme.pdf"
+        ));
+        // File inside .hidden is left untouched
+        assert!(src.path().join(".hidden/secret.pdf").exists());
+    }
+
+    #[test]
+    fn test_recursive_dry_run() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        fs::create_dir(src.path().join("subdir")).unwrap();
+        setup_source_file(src.path().join("subdir").as_ref(), "inner.pdf", b"inner");
+        setup_source_file(src.path(), "root.pdf", b"root");
+
+        let rules = RulesConfig::default();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            true,
+            &default_semester(),
+            true,
+        )
+        .unwrap();
+
+        assert_eq!(report.total, 2);
+        assert_eq!(report.moved, 2);
+
+        // Source files must still exist after dry run
+        assert!(src.path().join("root.pdf").exists());
+        assert!(src.path().join("subdir/inner.pdf").exists());
+    }
+
+    #[test]
+    fn test_recursive_default_off() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        fs::create_dir(src.path().join("subdir")).unwrap();
+        setup_source_file(src.path().join("subdir").as_ref(), "inner.pdf", b"inner");
+        setup_source_file(src.path(), "root.pdf", b"root");
+
+        let rules = RulesConfig::default();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
+
+        // Only root file — subdir contents are skipped
+        assert_eq!(report.total, 1);
+        assert_eq!(report.moved, 1);
+        assert!(
+            tgt.path()
+                .join("Documents/PDF")
+                .join(current_semester())
+                .join("root.pdf")
+                .exists()
+                || tgt.path().join("Documents/PDF/root.pdf").exists()
+        );
+        assert!(src.path().join("subdir/inner.pdf").exists());
     }
 }

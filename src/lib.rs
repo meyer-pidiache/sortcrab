@@ -21,6 +21,7 @@
 //!     &rules,
 //!     false,
 //!     &semester,
+//!     false,
 //! )?;
 //! println!("Moved {} files", report.moved);
 //! # Ok::<_, sortcrab::error::SortcrabError>(())
