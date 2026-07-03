@@ -137,11 +137,6 @@ detect_platform() {
         windows) TARGET="${ARCH}-pc-windows-msvc" ;;
     esac
 
-    if [ "$OS" = "linux" ] && [ "$LIBC" = "musl" ]; then
-        echo_warn "musl detected — falling back to gnu binary. Static musl builds coming soon."
-        TARGET="${ARCH}-unknown-linux-gnu"
-    fi
-
     BINARY="sortcrab"
     if [ "$OS" = "windows" ]; then
         BINARY="sortcrab.exe"
