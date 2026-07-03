@@ -8,7 +8,9 @@ mod display;
 
 use std::path::PathBuf;
 
-use crate::cli::args::{Cli, Commands, ConfigArgs};
+use clap::CommandFactory;
+
+use crate::cli::args::{Cli, Commands, CompletionArgs, ConfigArgs};
 use crate::config::{ConfigManager, SemesterConfig};
 use crate::core::sort_files;
 use crate::error::SortcrabError;
@@ -26,6 +28,7 @@ pub fn run(cli: Cli) -> Result<(), SortcrabError> {
         None => execute_sort(&cli),
         Some(Commands::Init) => handle_init(),
         Some(Commands::Config(args)) => handle_config(args),
+        Some(Commands::Completions(args)) => handle_completions(args),
     }
 }
 
@@ -36,6 +39,14 @@ fn handle_init() -> Result<(), SortcrabError> {
         "Created default configuration at {:?}",
         ConfigManager::config_path()?
     );
+    Ok(())
+}
+
+fn handle_completions(args: CompletionArgs) -> Result<(), SortcrabError> {
+    log::debug!("Generating completions for shell: {}", args.shell);
+    let mut cmd = Cli::command();
+    let name = cmd.get_name().to_string();
+    clap_complete::generate(args.shell, &mut cmd, name, &mut std::io::stdout());
     Ok(())
 }
 

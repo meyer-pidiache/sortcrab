@@ -4,6 +4,7 @@
 //! subcommands, and supporting argument structs.
 
 use clap::{Parser, Subcommand};
+use clap_complete::Shell;
 use std::path::PathBuf;
 
 /// Organises files into categorised, semester-dated folders.
@@ -54,6 +55,8 @@ pub enum Commands {
     Init,
     /// View or edit the sortcrab configuration
     Config(ConfigArgs),
+    /// Generate shell completion scripts
+    Completions(CompletionArgs),
 }
 
 /// Arguments for the `config` subcommand.
@@ -66,4 +69,11 @@ pub struct ConfigArgs {
     /// Open the configuration file in the system's default editor
     #[arg(long)]
     pub edit: bool,
+}
+
+/// Arguments for the `completions` subcommand.
+#[derive(Parser, Debug)]
+pub struct CompletionArgs {
+    /// Shell to generate completions for (bash, zsh, fish, powershell)
+    pub shell: Shell,
 }
