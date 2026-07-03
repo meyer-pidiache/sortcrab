@@ -525,3 +525,113 @@ fn test_cli_recursive_flag() {
         "sortcrab --dry-run should exit 0"
     );
 }
+
+// ── Shell completions subcommand ───────────────────────────────────────────
+
+#[test]
+fn test_completions_bash() {
+    let binary = sortcrab_binary();
+    let output = std::process::Command::new(&binary)
+        .args(["completions", "bash"])
+        .output()
+        .expect("failed to run sortcrab completions bash");
+
+    assert!(
+        output.status.success(),
+        "completions bash should exit 0; stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(
+        stdout.contains("_sortcrab"),
+        "bash completions should contain function '_sortcrab'"
+    );
+}
+
+#[test]
+fn test_completions_zsh() {
+    let binary = sortcrab_binary();
+    let output = std::process::Command::new(&binary)
+        .args(["completions", "zsh"])
+        .output()
+        .expect("failed to run sortcrab completions zsh");
+
+    assert!(
+        output.status.success(),
+        "completions zsh should exit 0; stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(
+        stdout.contains("#compdef"),
+        "zsh completions should contain '#compdef'"
+    );
+}
+
+#[test]
+fn test_completions_fish() {
+    let binary = sortcrab_binary();
+    let output = std::process::Command::new(&binary)
+        .args(["completions", "fish"])
+        .output()
+        .expect("failed to run sortcrab completions fish");
+
+    assert!(
+        output.status.success(),
+        "completions fish should exit 0; stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(
+        stdout.contains("complete"),
+        "fish completions should contain 'complete'"
+    );
+}
+
+#[test]
+fn test_completions_powershell() {
+    let binary = sortcrab_binary();
+    let output = std::process::Command::new(&binary)
+        .args(["completions", "powershell"])
+        .output()
+        .expect("failed to run sortcrab completions powershell");
+
+    assert!(
+        output.status.success(),
+        "completions powershell should exit 0; stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(
+        stdout.contains("Register-ArgumentCompleter"),
+        "powershell completions should contain 'Register-ArgumentCompleter'"
+    );
+}
+
+#[test]
+fn test_completions_missing_shell_errors() {
+    let binary = sortcrab_binary();
+    let output = std::process::Command::new(&binary)
+        .arg("completions")
+        .output()
+        .expect("failed to run sortcrab completions (no shell)");
+
+    assert!(
+        !output.status.success(),
+        "completions without shell arg should exit with error"
+    );
+}
+
+#[test]
+fn test_completions_invalid_shell_errors() {
+    let binary = sortcrab_binary();
+    let output = std::process::Command::new(&binary)
+        .args(["completions", "invalid_shell"])
+        .output()
+        .expect("failed to run sortcrab completions invalid_shell");
+
+    assert!(
+        !output.status.success(),
+        "completions with invalid shell should exit with error"
+    );
+}
