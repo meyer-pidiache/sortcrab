@@ -8,6 +8,7 @@ homepage = "https://github.com/meyer-pidiache/sortcrab"
 license = "PolyForm-Noncommercial-1.0.0"
 keywords = ["file-organization", "sorting", "cli", "file-management"]
 categories = ["command-line-utilities"]
+exclude = ["assets/", "scripts/", ".agents/"]
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
