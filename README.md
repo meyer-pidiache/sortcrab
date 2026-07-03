@@ -7,7 +7,7 @@ it into a structured destination tree: `{category}/{subcategory}/{semester}/{fil
 
 ## What it looks like
 
-![sortcrab demo](assets/sortcrab-demo.gif)
+![sortcrab demo](https://raw.githubusercontent.com/meyer-pidiache/sortcrab/main/assets/sortcrab-demo.gif)
 
 ## Quick start
 
