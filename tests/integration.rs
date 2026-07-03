@@ -466,3 +466,62 @@ fn test_cli_invalid_subcommand() {
         "invalid subcommand should exit with error"
     );
 }
+
+// ── CLI --recursive flag ─────────────────────────────────────────────────────
+
+#[test]
+fn test_cli_recursive_flag() {
+    let src = tempdir().unwrap();
+    let tgt = tempdir().unwrap();
+
+    // Create a nested structure
+    fs::create_dir(src.path().join("subdir")).unwrap();
+    create_file(
+        src.path().join("subdir").as_ref(),
+        "inner.pdf",
+        b"inner content",
+    );
+    create_file(src.path(), "root.pdf", b"root content");
+
+    let binary = sortcrab_binary();
+    let output = std::process::Command::new(&binary)
+        .arg("-s")
+        .arg(src.path())
+        .arg("-t")
+        .arg(tgt.path())
+        .arg("--dry-run")
+        .arg("--recursive")
+        .output()
+        .expect("failed to run sortcrab --recursive --dry-run");
+
+    assert!(
+        output.status.success(),
+        "sortcrab --recursive --dry-run should exit 0; stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    // Both files should still exist at source (dry run)
+    assert!(
+        src.path().join("root.pdf").exists(),
+        "root.pdf should still exist (dry run)"
+    );
+    assert!(
+        src.path().join("subdir/inner.pdf").exists(),
+        "inner.pdf should still exist (dry run)"
+    );
+
+    // Verify non-recursive mode skips subdirectories
+    let output_non_rec = std::process::Command::new(&binary)
+        .arg("-s")
+        .arg(src.path())
+        .arg("-t")
+        .arg(tgt.path())
+        .arg("--dry-run")
+        .output()
+        .expect("failed to run sortcrab --dry-run (no recursive)");
+
+    assert!(
+        output_non_rec.status.success(),
+        "sortcrab --dry-run should exit 0"
+    );
+}

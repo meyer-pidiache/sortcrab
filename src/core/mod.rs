@@ -125,7 +125,7 @@ pub fn sort_files(
         };
 
         if path.is_dir() {
-            if recursive && !is_symlink_dir(&path) {
+            if recursive && !is_symlink_dir(&path) && !is_dotfile_dir(&path) {
                 process_directory_recursive(
                     &path,
                     target,
@@ -163,6 +163,12 @@ fn is_symlink_dir(path: &Path) -> bool {
         .unwrap_or(false)
 }
 
+fn is_dotfile_dir(path: &Path) -> bool {
+    path.file_name()
+        .and_then(|n| n.to_str())
+        .is_some_and(|n| n.starts_with('.'))
+}
+
 /// Recursively process files in `dir` and all its subdirectories.
 ///
 /// Symlink directories and dotfile directories (e.g. `.git`, `.hidden`) are
@@ -178,11 +184,7 @@ fn process_directory_recursive(
     predicted: &mut HashSet<PathBuf>,
 ) {
     // Skip dotfile directories (e.g. .git, .hidden) at any level
-    if dir
-        .file_name()
-        .and_then(|n| n.to_str())
-        .is_some_and(|n| n.starts_with('.'))
-    {
+    if is_dotfile_dir(dir) {
         log::debug!("Skipping dotfile directory: {}", dir.display());
         return;
     }
@@ -200,15 +202,6 @@ fn process_directory_recursive(
             // Don't follow symlinked directories
             if is_symlink_dir(&path) {
                 log::debug!("Skipping symlink directory: {}", path.display());
-                continue;
-            }
-            // Skip dotfile directories (e.g. .git, .cache)
-            if path
-                .file_name()
-                .and_then(|n| n.to_str())
-                .is_some_and(|n| n.starts_with('.'))
-            {
-                log::debug!("Skipping dotfile directory: {}", path.display());
                 continue;
             }
             process_directory_recursive(
@@ -1026,5 +1019,54 @@ mod tests {
                 || tgt.path().join("Documents/PDF/root.pdf").exists()
         );
         assert!(src.path().join("subdir/inner.pdf").exists());
+    }
+
+    #[test]
+    fn test_recursive_skip_already_organised() {
+        let tgt = tempdir().unwrap();
+        let sem = current_semester();
+
+        // Source is the target itself with recursive mode:
+        //   tgt/root.pdf                             ← new file
+        //   tgt/Documents/PDF/{sem}/nested.pdf       ← already at destination
+        fs::create_dir_all(tgt.path().join(format!("Documents/PDF/{sem}"))).unwrap();
+        setup_source_file(
+            &tgt.path().join(format!("Documents/PDF/{sem}")),
+            "nested.pdf",
+            b"nested",
+        );
+        setup_source_file(tgt.path(), "root.pdf", b"root");
+
+        let rules = RulesConfig::default();
+        let report = sort_files(
+            tgt.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            true,
+        )
+        .unwrap();
+
+        // root.pdf is moved; nested.pdf (and root.pdf again after move) were skipped
+        // via check_already_organised (root.pdf is re-discovered by the recursive
+        // walker at its destination after the move).
+        assert_eq!(report.total, 3);
+        assert_eq!(report.moved, 1);
+        assert_eq!(report.skipped, 2);
+        assert_eq!(report.errors, 0);
+
+        assert!(
+            tgt.path()
+                .join(format!("Documents/PDF/{sem}/root.pdf"))
+                .exists(),
+            "root.pdf should be moved to destination"
+        );
+        assert!(
+            tgt.path()
+                .join(format!("Documents/PDF/{sem}/nested.pdf"))
+                .exists(),
+            "nested.pdf should remain in place (already organised)"
+        );
     }
 }
