@@ -3,9 +3,11 @@
 "doc" = { category = "Documents", subcategory = "Word" }
 "docx" = { category = "Documents", subcategory = "Word" }
 "odt" = { category = "Documents", subcategory = "Word" }
+"dotm" = { category = "Documents", subcategory = "Word" }
 "txt" = { category = "Documents", subcategory = "Text" }
 "md" = { category = "Documents", subcategory = "Text" }
 "rtf" = { category = "Documents", subcategory = "Text" }
+"log" = { category = "Documents", subcategory = "Text" }
 "tex" = { category = "Documents", subcategory = "Latex" }
 "ppt" = { category = "Documents", subcategory = "Presentations" }
 "pptx" = { category = "Documents", subcategory = "Presentations" }
@@ -16,6 +18,9 @@
 "csv" = { category = "Documents", subcategory = "Data" }
 "json" = { category = "Documents", subcategory = "Data" }
 "xml" = { category = "Documents", subcategory = "Data" }
+"crt" = { category = "Documents", subcategory = "Data" }
+"pem" = { category = "Documents", subcategory = "Data" }
+"pkpass" = { category = "Documents", subcategory = "Data" }
 
 # ── Media / Images ────────────────────────────────────────────────────
 "jpg" = { category = "Media", subcategory = "Images" }
@@ -24,8 +29,11 @@
 "gif" = { category = "Media", subcategory = "Images" }
 "bmp" = { category = "Media", subcategory = "Images" }
 "svg" = { category = "Media", subcategory = "Images/Vectors" }
+"eps" = { category = "Media", subcategory = "Images/Vectors" }
 "webp" = { category = "Media", subcategory = "Images" }
 "heic" = { category = "Media", subcategory = "Images" }
+"glb" = { category = "Media", subcategory = "Images" }
+"lottie" = { category = "Media", subcategory = "Images" }
 "psd" = { category = "Media", subcategory = "Images/Photoshop" }
 "ai" = { category = "Media", subcategory = "Images/Illustrator" }
 "indd" = { category = "Media", subcategory = "Images/InDesign" }
@@ -46,6 +54,8 @@
 "flv" = { category = "Media", subcategory = "Videos" }
 "wmv" = { category = "Media", subcategory = "Videos" }
 "webm" = { category = "Media", subcategory = "Videos" }
+"vtt" = { category = "Media", subcategory = "Videos" }
+"m3u8" = { category = "Media", subcategory = "Videos" }
 
 # ── Archives / Compressed ────────────────────────────────────────────
 "zip" = { category = "Archives", subcategory = "Compressed" }
@@ -71,6 +81,7 @@
 "dmg" = { category = "Archives", subcategory = "Packages" }
 "pkg" = { category = "Archives", subcategory = "Packages" }
 "appimage" = { category = "Archives", subcategory = "Packages" }
+"jar" = { category = "Archives", subcategory = "Packages" }
 
 # ── Development ───────────────────────────────────────────────────────
 "sh" = { category = "Development", subcategory = "Scripts" }
@@ -88,11 +99,21 @@
 "html" = { category = "Development", subcategory = "Web" }
 "css" = { category = "Development", subcategory = "Web" }
 "scss" = { category = "Development", subcategory = "Web" }
+"xsl" = { category = "Development", subcategory = "Web" }
+"xslt" = { category = "Development", subcategory = "Web" }
 "sql" = { category = "Development", subcategory = "Databases" }
 "db" = { category = "Development", subcategory = "Databases" }
 "sqlite" = { category = "Development", subcategory = "Databases" }
 "dockerfile" = { category = "Development", subcategory = "Docker" }
 
+# ── Development / Config ──────────────────────────────────────────────
+"yaml" = { category = "Development", subcategory = "Config" }
+"yml" = { category = "Development", subcategory = "Config" }
+"ovpn" = { category = "Development", subcategory = "Config" }
+
 # ── Other ─────────────────────────────────────────────────────────────
 "vdi" = { category = "Other", subcategory = "VirtualMachines" }
 "vbox" = { category = "Other", subcategory = "VirtualMachines" }
+
+# ── Other / Minecraft ─────────────────────────────────────────────────
+"schematic" = { category = "Other", subcategory = "Minecraft" }

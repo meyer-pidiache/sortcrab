@@ -97,8 +97,8 @@ mod tests {
     fn test_default_rules_count() {
         let config = RulesConfig::default();
         assert!(
-            config.rules.len() >= 79,
-            "Expected >= 79 rules, got {}",
+            config.rules.len() >= 95,
+            "Expected >= 95 rules, got {}",
             config.rules.len()
         );
     }
