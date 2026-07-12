@@ -58,12 +58,17 @@ PowerShell:
 
 ```bash
 # Bash
+mkdir -p ~/.local/share/bash-completion/completions
 sortcrab completions bash > ~/.local/share/bash-completion/completions/sortcrab
 
-# Zsh (macOS — Homebrew path)
-sortcrab completions zsh > /usr/local/share/zsh/site-functions/_sortcrab
-# Zsh (Linux — system path)
-# sortcrab completions zsh > /usr/share/zsh/site-functions/_sortcrab
+# Zsh — user-local
+mkdir -p ~/.zfunc
+sortcrab completions zsh > ~/.zfunc/_sortcrab
+# Then add to ~/.zshrc BEFORE the existing compinit call:
+#   fpath=(~/.zfunc $fpath)
+
+# Zsh — system-wide
+sortcrab completions zsh | sudo tee /usr/share/zsh/site-functions/_sortcrab > /dev/null
 
 # Fish
 sortcrab completions fish > ~/.config/fish/completions/sortcrab.fish
