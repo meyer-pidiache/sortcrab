@@ -110,8 +110,8 @@ jobs:
 
           X86_64_DARWIN_SHA=$(cat artifacts/sortcrab-x86_64-apple-darwin/sortcrab-x86_64-apple-darwin.sha256)
           AARCH64_DARWIN_SHA=$(cat artifacts/sortcrab-aarch64-apple-darwin/sortcrab-aarch64-apple-darwin.sha256)
-          X86_64_LINUX_SHA=$(cat artifacts/sortcrab-x86_64-unknown-linux-gnu/sortcrab-x86_64-unknown-linux-gnu.sha256)
-          AARCH64_LINUX_SHA=$(cat artifacts/sortcrab-aarch64-unknown-linux-gnu/sortcrab-aarch64-unknown-linux-gnu.sha256)
+          X86_64_LINUX_SHA=$(cat artifacts/sortcrab-x86_64-unknown-linux-musl/sortcrab-x86_64-unknown-linux-musl.sha256)
+          AARCH64_LINUX_SHA=$(cat artifacts/sortcrab-aarch64-unknown-linux-musl/sortcrab-aarch64-unknown-linux-musl.sha256)
 
           cat > sortcrab.rb << RUBYEOF
           class Sortcrab < Formula
@@ -131,10 +131,10 @@ jobs:
 
             on_linux do
               if Hardware::CPU.arm?
-                url "https://github.com/meyer-pidiache/sortcrab/releases/download/${VERSION}/sortcrab-aarch64-unknown-linux-gnu.tar.gz"
+                url "https://github.com/meyer-pidiache/sortcrab/releases/download/${VERSION}/sortcrab-aarch64-unknown-linux-musl.tar.gz"
                 sha256 "${AARCH64_LINUX_SHA}"
               else
-                url "https://github.com/meyer-pidiache/sortcrab/releases/download/${VERSION}/sortcrab-x86_64-unknown-linux-gnu.tar.gz"
+                url "https://github.com/meyer-pidiache/sortcrab/releases/download/${VERSION}/sortcrab-x86_64-unknown-linux-musl.tar.gz"
                 sha256 "${X86_64_LINUX_SHA}"
               end
             end
