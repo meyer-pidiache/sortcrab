@@ -106,7 +106,7 @@ parse_args() {
 
 OS=""
 ARCH=""
-LIBC="gnu"
+LIBC="musl"
 TARGET=""
 BINARY=""
 
@@ -126,8 +126,8 @@ detect_platform() {
     esac
 
     if [ "$OS" = "linux" ]; then
-        if ldd --version 2>/dev/null | head -1 | grep -qi musl; then
-            LIBC="musl"
+        if ldd --version 2>/dev/null | head -1 | grep -qi "gnu\|glibc"; then
+            LIBC="gnu"
         fi
     fi
 
