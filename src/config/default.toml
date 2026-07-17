@@ -4,10 +4,20 @@
 "docx" = { category = "Documents", subcategory = "Word" }
 "odt" = { category = "Documents", subcategory = "Word" }
 "dotm" = { category = "Documents", subcategory = "Word" }
+"ott" = { category = "Documents", subcategory = "Word" }
 "txt" = { category = "Documents", subcategory = "Text" }
 "md" = { category = "Documents", subcategory = "Text" }
 "rtf" = { category = "Documents", subcategory = "Text" }
 "log" = { category = "Documents", subcategory = "Text" }
+"1" = { category = "Documents", subcategory = "Text" }
+"2" = { category = "Documents", subcategory = "Text" }
+"3" = { category = "Documents", subcategory = "Text" }
+"4" = { category = "Documents", subcategory = "Text" }
+"5" = { category = "Documents", subcategory = "Text" }
+"6" = { category = "Documents", subcategory = "Text" }
+"7" = { category = "Documents", subcategory = "Text" }
+"8" = { category = "Documents", subcategory = "Text" }
+"9" = { category = "Documents", subcategory = "Text" }
 "tex" = { category = "Documents", subcategory = "Latex" }
 "ppt" = { category = "Documents", subcategory = "Presentations" }
 "pptx" = { category = "Documents", subcategory = "Presentations" }
@@ -21,6 +31,9 @@
 "crt" = { category = "Documents", subcategory = "Data" }
 "pem" = { category = "Documents", subcategory = "Data" }
 "pkpass" = { category = "Documents", subcategory = "Data" }
+
+# ── Documents / Drawings ──────────────────────────────────────────
+"excalidraw" = { category = "Documents", subcategory = "Drawings" }
 
 # ── Media / Images ────────────────────────────────────────────────────
 "jpg" = { category = "Media", subcategory = "Images" }
@@ -57,6 +70,9 @@
 "vtt" = { category = "Media", subcategory = "Videos" }
 "m3u8" = { category = "Media", subcategory = "Videos" }
 
+# ── Media / Fonts ────────────────────────────────────────────
+"woff2" = { category = "Media", subcategory = "Fonts" }
+
 # ── Archives / Compressed ────────────────────────────────────────────
 "zip" = { category = "Archives", subcategory = "Compressed" }
 "rar" = { category = "Archives", subcategory = "Compressed" }
@@ -69,6 +85,8 @@
 # ── Archives / Disk Images ───────────────────────────────────────────
 "iso" = { category = "Archives", subcategory = "DiskImages" }
 "img" = { category = "Archives", subcategory = "DiskImages" }
+"bin" = { category = "Archives", subcategory = "DiskImages" }
+"cue" = { category = "Archives", subcategory = "DiskImages" }
 
 # ── Archives / Torrents ──────────────────────────────────────────────
 "torrent" = { category = "Archives", subcategory = "Torrents" }
@@ -82,10 +100,14 @@
 "pkg" = { category = "Archives", subcategory = "Packages" }
 "appimage" = { category = "Archives", subcategory = "Packages" }
 "jar" = { category = "Archives", subcategory = "Packages" }
+"apk" = { category = "Archives", subcategory = "Packages" }
+"oxt" = { category = "Archives", subcategory = "Packages" }
+"nupkg" = { category = "Archives", subcategory = "Packages" }
 
 # ── Development ───────────────────────────────────────────────────────
 "sh" = { category = "Development", subcategory = "Scripts" }
 "bash" = { category = "Development", subcategory = "Scripts" }
+"zsh" = { category = "Development", subcategory = "Scripts" }
 "py" = { category = "Development", subcategory = "Python" }
 "js" = { category = "Development", subcategory = "JavaScript" }
 "ts" = { category = "Development", subcategory = "TypeScript" }
@@ -101,6 +123,8 @@
 "scss" = { category = "Development", subcategory = "Web" }
 "xsl" = { category = "Development", subcategory = "Web" }
 "xslt" = { category = "Development", subcategory = "Web" }
+"atom" = { category = "Development", subcategory = "Web" }
+"webmanifest" = { category = "Development", subcategory = "Web" }
 "sql" = { category = "Development", subcategory = "Databases" }
 "db" = { category = "Development", subcategory = "Databases" }
 "sqlite" = { category = "Development", subcategory = "Databases" }
@@ -115,5 +139,15 @@
 "vdi" = { category = "Other", subcategory = "VirtualMachines" }
 "vbox" = { category = "Other", subcategory = "VirtualMachines" }
 
+# ── Other / Encrypted ────────────────────────────────────────────
+"enc" = { category = "Other", subcategory = "Encrypted" }
+
 # ── Other / Minecraft ─────────────────────────────────────────────────
 "schematic" = { category = "Other", subcategory = "Minecraft" }
+
+# ── Other / Temporary ─────────────────────────────────────────
+"crdownload" = { category = "Other", subcategory = "Temporary" }
+"part" = { category = "Other", subcategory = "Temporary" }
+
+# ── Other / Backup ──────────────────────────────────────────────
+"bk" = { category = "Other", subcategory = "Backup" }
