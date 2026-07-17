@@ -18,7 +18,7 @@ use crate::core::moving::Classification;
 
 use crate::config::SemesterConfig;
 use crate::config::rules::RulesConfig;
-use crate::core::classify::classify_file;
+use crate::core::classify::{FALLBACK_SUBCATEGORY, classify_or_fallback};
 use crate::core::moving::{MoveOptions, move_file, resolve_collision};
 use crate::core::semester::semester_label;
 use crate::error::SortcrabError;
@@ -311,14 +311,15 @@ fn classify_or_skip(
     rules: &RulesConfig,
     report: &mut SortReport,
 ) -> Option<Classification> {
-    let classification = match classify_file(rules, path) {
-        Ok(c) => c,
-        Err(e) => {
-            log::warn!("Could not classify {}: {e}", path.display());
-            report.errors += 1;
-            return None;
-        }
-    };
+    let classification = classify_or_fallback(rules, path);
+    if classification.subcategory == FALLBACK_SUBCATEGORY {
+        log::info!(
+            "Unknown extension for {} — routing to {}/{}",
+            path.display(),
+            classification.category,
+            classification.subcategory,
+        );
+    }
 
     // fs::metadata follows symlinks and would error on a broken
     // symlink whose target was already moved in this pass.
@@ -612,7 +613,7 @@ mod tests {
     }
 
     #[test]
-    fn test_unknown_extension_counts_as_error() {
+    fn test_unknown_extension_routes_to_fallback() {
         let src = tempdir().unwrap();
         let tgt = tempdir().unwrap();
 
@@ -630,9 +631,13 @@ mod tests {
         .unwrap();
 
         assert_eq!(report.total, 1);
-        assert_eq!(report.moved, 0);
+        assert_eq!(report.moved, 1);
         assert_eq!(report.skipped, 0);
-        assert_eq!(report.errors, 1);
+        assert_eq!(report.errors, 0);
+
+        let sem = current_semester();
+        let expected = tgt.path().join(format!("Other/Unknown/{sem}/data.xyz123"));
+        assert!(expected.exists(), "Expected fallback at {:?}", expected);
     }
 
     #[test]
@@ -743,9 +748,9 @@ mod tests {
         .unwrap();
 
         assert_eq!(report.total, 4);
-        assert_eq!(report.moved, 2); // doc.pdf, song.mp3
+        assert_eq!(report.moved, 3); // doc.pdf, song.mp3, unknown.xyz
         assert_eq!(report.skipped, 1); // .hidden.txt
-        assert_eq!(report.errors, 1); // unknown.xyz
+        assert_eq!(report.errors, 0);
 
         // Source directory should still exist (we never remove it).
         assert!(src.path().join("subdir").is_dir());
@@ -1067,5 +1072,121 @@ mod tests {
                 .exists(),
             "nested.pdf should remain in place (already organised)"
         );
+    }
+
+    // ── Fallback routing ──────────────────────────────────────────
+
+    #[test]
+    fn test_unknown_fallback_dry_run() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        setup_source_file(src.path(), "data.xyz123", b"unknown");
+
+        let rules = RulesConfig::default();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            true,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
+
+        assert_eq!(report.total, 1);
+        assert_eq!(report.moved, 1);
+        assert_eq!(report.errors, 0);
+
+        assert!(
+            src.path().join("data.xyz123").exists(),
+            "source must still exist in dry-run mode"
+        );
+    }
+
+    #[test]
+    fn test_fallback_idempotent_skip() {
+        let tgt = tempdir().unwrap();
+        let sem = current_semester();
+
+        let src = tgt.path().join("Other/Unknown").join(&sem);
+        fs::create_dir_all(&src).unwrap();
+        let file_path = src.join("data.xyz123");
+        fs::write(&file_path, b"content").unwrap();
+
+        let rules = RulesConfig::default();
+        let report =
+            sort_files(&src, tgt.path(), &rules, false, &default_semester(), false).unwrap();
+
+        assert_eq!(report.total, 1);
+        assert_eq!(report.skipped, 1);
+        assert_eq!(report.moved, 0);
+        assert_eq!(report.errors, 0);
+    }
+
+    #[test]
+    fn test_symlink_unknown_still_skipped() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        setup_source_file(src.path(), "data.xyz123", b"unknown");
+        #[cfg(unix)]
+        std::os::unix::fs::symlink(
+            src.path().join("data.xyz123"),
+            src.path().join("link.xyz123"),
+        )
+        .unwrap();
+
+        let rules = RulesConfig::default();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
+
+        #[cfg(unix)]
+        {
+            assert_eq!(report.total, 2);
+            assert_eq!(report.moved, 1);
+            assert_eq!(report.skipped, 1);
+            assert_eq!(report.errors, 0);
+        }
+        #[cfg(not(unix))]
+        {
+            assert_eq!(report.total, 1);
+            assert_eq!(report.moved, 1);
+            assert_eq!(report.skipped, 0);
+            assert_eq!(report.errors, 0);
+        }
+    }
+
+    #[test]
+    fn test_dotfile_unknown_still_skipped() {
+        let src = tempdir().unwrap();
+        let tgt = tempdir().unwrap();
+
+        setup_source_file(src.path(), ".unknown.xyz", b"dotfile");
+
+        let rules = RulesConfig::default();
+        let report = sort_files(
+            src.path(),
+            tgt.path(),
+            &rules,
+            false,
+            &default_semester(),
+            false,
+        )
+        .unwrap();
+
+        assert_eq!(report.total, 1);
+        assert_eq!(report.skipped, 1);
+        assert_eq!(report.moved, 0);
+        assert_eq!(report.errors, 0);
+
+        assert!(src.path().join(".unknown.xyz").exists());
     }
 }

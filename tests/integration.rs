@@ -257,9 +257,9 @@ fn test_sort_mixed_known_and_unknown() {
     .unwrap();
 
     assert_eq!(report.total, 4);
-    assert_eq!(report.moved, 2);
+    assert_eq!(report.moved, 4);
     assert_eq!(report.skipped, 0);
-    assert_eq!(report.errors, 2);
+    assert_eq!(report.errors, 0);
 }
 
 // ── Nested directories inside source are skipped ─────────────────────────────
