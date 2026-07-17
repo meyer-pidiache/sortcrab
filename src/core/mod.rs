@@ -311,6 +311,16 @@ fn classify_or_skip(
     rules: &RulesConfig,
     report: &mut SortReport,
 ) -> Option<Classification> {
+    // fs::symlink_metadata does not follow the link, so a symlink whose
+    // target was already moved in this pass is still detectable here.
+    if let Ok(meta) = fs::symlink_metadata(path)
+        && meta.is_symlink()
+    {
+        log::debug!("Skipping symlink: {}", path.display());
+        report.skipped += 1;
+        return None;
+    }
+
     let classification = classify_or_fallback(rules, path);
     if classification.subcategory == FALLBACK_SUBCATEGORY {
         log::info!(
@@ -319,16 +329,6 @@ fn classify_or_skip(
             classification.category,
             classification.subcategory,
         );
-    }
-
-    // fs::metadata follows symlinks and would error on a broken
-    // symlink whose target was already moved in this pass.
-    if let Ok(meta) = fs::symlink_metadata(path)
-        && meta.is_symlink()
-    {
-        log::debug!("Skipping symlink: {}", path.display());
-        report.skipped += 1;
-        return None;
     }
 
     Some(classification)
