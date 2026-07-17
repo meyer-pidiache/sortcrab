@@ -8,6 +8,11 @@ use crate::core::moving::Classification;
 use crate::error::SortcrabError;
 use std::path::Path;
 
+/// Fallback category for files with unknown or missing extensions.
+pub const FALLBACK_CATEGORY: &str = "Other";
+/// Fallback subcategory for files with unknown or missing extensions.
+pub const FALLBACK_SUBCATEGORY: &str = "Unknown";
+
 /// Look up a file extension in the rules table.
 ///
 /// Normalises the extension to lowercase and strips any leading dot before
@@ -69,6 +74,40 @@ pub fn classify_file(rules: &RulesConfig, path: &Path) -> Result<Classification,
             subcategory: rule.subcategory.clone(),
         }),
         None => Err(SortcrabError::UnknownExtension(lookup_key.to_string())),
+    }
+}
+
+/// Classify a file, falling back to `Other/Unknown` for unknown extensions.
+///
+/// Unlike [`classify_file`], this function does not return
+/// [`SortcrabError::UnknownExtension`]. Instead, files with unrecognized
+/// extensions or no extension are classified under the fallback category
+/// (`Other/Unknown`), ensuring every visible file gets moved somewhere
+/// rather than being left behind.
+///
+/// # Example
+///
+/// ```rust
+/// use sortcrab::config::rules::RulesConfig;
+/// use sortcrab::core::classify::classify_or_fallback;
+/// use std::path::Path;
+///
+/// let rules = RulesConfig::default();
+/// let class = classify_or_fallback(&rules, Path::new("data.xyz123"));
+/// assert_eq!(class.category, "Other");
+/// assert_eq!(class.subcategory, "Unknown");
+/// ```
+pub fn classify_or_fallback(rules: &RulesConfig, path: &Path) -> Classification {
+    match classify_file(rules, path) {
+        Ok(c) => c,
+        Err(SortcrabError::UnknownExtension(_)) => Classification {
+            category: FALLBACK_CATEGORY.to_string(),
+            subcategory: FALLBACK_SUBCATEGORY.to_string(),
+        },
+        Err(_) => Classification {
+            category: FALLBACK_CATEGORY.to_string(),
+            subcategory: FALLBACK_SUBCATEGORY.to_string(),
+        },
     }
 }
 
@@ -195,5 +234,31 @@ mod tests {
             Err(SortcrabError::UnknownExtension(_)) => {}
             _ => panic!("expected UnknownExtension for dotfile"),
         }
+    }
+
+    // ── classify_or_fallback ───────────────────────────────────────
+
+    #[test]
+    fn test_classify_or_fallback_known() {
+        let rules = test_rules();
+        let class = classify_or_fallback(&rules, Path::new("report.pdf"));
+        assert_eq!(class.category, "Documents");
+        assert_eq!(class.subcategory, "PDF");
+    }
+
+    #[test]
+    fn test_classify_or_fallback_unknown_ext() {
+        let rules = test_rules();
+        let class = classify_or_fallback(&rules, Path::new("data.xyz123"));
+        assert_eq!(class.category, "Other");
+        assert_eq!(class.subcategory, "Unknown");
+    }
+
+    #[test]
+    fn test_classify_or_fallback_no_extension() {
+        let rules = test_rules();
+        let class = classify_or_fallback(&rules, Path::new("Makefile"));
+        assert_eq!(class.category, "Other");
+        assert_eq!(class.subcategory, "Unknown");
     }
 }
