@@ -100,10 +100,8 @@ pub fn classify_file(rules: &RulesConfig, path: &Path) -> Result<Classification,
 pub fn classify_or_fallback(rules: &RulesConfig, path: &Path) -> Classification {
     match classify_file(rules, path) {
         Ok(c) => c,
-        Err(SortcrabError::UnknownExtension(_)) => Classification {
-            category: FALLBACK_CATEGORY.to_string(),
-            subcategory: FALLBACK_SUBCATEGORY.to_string(),
-        },
+        // classify_file currently only fails with UnknownExtension (pure
+        // string lookups, no I/O), so any Err routes to the fallback.
         Err(_) => Classification {
             category: FALLBACK_CATEGORY.to_string(),
             subcategory: FALLBACK_SUBCATEGORY.to_string(),
