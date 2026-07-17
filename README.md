@@ -114,18 +114,13 @@ The following are **skipped** and left in place:
 - Symbolic links
 - Files already at their organized destination
 
-## Default categories
+Files whose extension is not recognized (e.g. `data.xyz123`, `Makefile`) are automatically
+moved into an `Other/Unknown/` folder instead of being left behind.
 
-| Category | Subcategories | Example extensions |
-|----------|---------------|-------------------|
-| Documents | PDF, Word, Text, LaTeX, Presentations, Spreadsheets, Data | `.pdf`, `.docx`, `.txt`, `.tex`, `.pptx`, `.xlsx`, `.csv` |
-| Media | Images, Images/Vectors, Images/Photoshop, Images/Illustrator, Images/InDesign, Audio, Videos | `.jpg`, `.png`, `.svg`, `.psd`, `.mp3`, `.mp4` |
-| Archives | Compressed, DiskImages, Torrents, Packages | `.zip`, `.rar`, `.7z`, `.tar`, `.gz`, `.bz2`, `.xz`, `.iso`, `.img`, `.torrent`, `.deb`, `.rpm`, `.exe`, `.msi`, `.dmg`, `.pkg`, `.AppImage` |
-| Development | Scripts, Python, JavaScript, TypeScript, Java, C, C++, C#, Go, Rust, Web, Databases, Docker | `.py`, `.js`, `.ts`, `.rs`, `.go`, `.html`, `.sql` |
-| Other | VirtualMachines | `.vdi`, `.vbox` |
+## Default mappings
 
-sortcrab ships with approximately 80 built-in extension-to-category mappings. You can
-override or extend any of them in the configuration file.
+sortcrab ships with 100+ built-in extension-to-category mappings. See
+[`src/config/default.toml`](src/config/default.toml) for the complete list.
 
 ## Configuration
 
@@ -141,7 +136,7 @@ months_per_period = 6
 folder_format = "{year}-{roman}"
 
 [rules]
-# ~80 built-in extension rules (truncated)
+# 100+ built-in extension rules (truncated)
 pdf = { category = "Documents", subcategory = "PDF" }
 mp3 = { category = "Media", subcategory = "Audio" }
 rs = { category = "Development", subcategory = "Rust" }
