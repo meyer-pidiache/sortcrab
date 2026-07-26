@@ -38,7 +38,7 @@ use crate::error::SortcrabError;
 
 /// Initialize logging based on verbosity level.
 ///
-/// - Default: `info` level
+/// - Default: `warn` level
 /// - `--verbose`: `debug` level
 /// - `--quiet`: `error` level
 ///
@@ -67,7 +67,7 @@ pub fn init_logging(verbose: bool, quiet: bool) {
     } else if verbose {
         builder.filter_level(log::LevelFilter::Debug);
     } else {
-        builder.filter_level(log::LevelFilter::Info);
+        builder.filter_level(log::LevelFilter::Warn);
     }
 
     let _ = builder.try_init();
@@ -98,7 +98,7 @@ mod tests {
 
     #[test]
     fn test_init_logging_default() {
-        // Should not panic; exercises the `info` branch.
+        // Should not panic; exercises the `warn` branch.
         init_logging(false, false);
     }
 

@@ -71,7 +71,7 @@ pub struct SortReport {
 /// period length and folder-name template.
 ///
 /// When `dry_run` is `true`, no files are actually moved — the intended
-/// destinations are logged via `log::info!`.
+/// destinations are logged via `log::info!` (visible with `--verbose`).
 ///
 /// When `recursive` is `true`, files in subdirectories are also processed.
 /// The source directory structure is not preserved — all files are moved into
