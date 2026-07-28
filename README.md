@@ -30,7 +30,7 @@ curl --proto '=https' --tlsv1.2 -fsSL https://github.com/meyer-pidiache/sortcrab
 ```
 
 The script auto-detects your OS, architecture, and libc, downloads the correct binary
-from the latest GitHub release, verifies the SHA-256 checksum, and installs it to
+from the latest GitHub release, and installs it to
  `~/.local/bin/`. No `sudo` required.
 
 Flags:
