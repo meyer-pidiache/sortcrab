@@ -78,18 +78,12 @@ jobs:
           cd "target/${{ matrix.target }}/release"
           tar czf "../../../sortcrab-${{ matrix.target }}.tar.gz" "$BINARY"
 
-      - name: Compute SHA256
-        shell: bash
-        run: |
-          sha256sum "sortcrab-${{ matrix.target }}.tar.gz" | cut -d' ' -f1 > "sortcrab-${{ matrix.target }}.sha256"
-
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
           name: sortcrab-${{ matrix.target }}
           path: |
             sortcrab-${{ matrix.target }}.tar.gz
-            sortcrab-${{ matrix.target }}.sha256
 
   homebrew:
     needs: [plan, build]
@@ -108,10 +102,10 @@ jobs:
         run: |
           VERSION="${{ needs.plan.outputs.tag }}"
 
-          X86_64_DARWIN_SHA=$(cat artifacts/sortcrab-x86_64-apple-darwin/sortcrab-x86_64-apple-darwin.sha256)
-          AARCH64_DARWIN_SHA=$(cat artifacts/sortcrab-aarch64-apple-darwin/sortcrab-aarch64-apple-darwin.sha256)
-          X86_64_LINUX_SHA=$(cat artifacts/sortcrab-x86_64-unknown-linux-musl/sortcrab-x86_64-unknown-linux-musl.sha256)
-          AARCH64_LINUX_SHA=$(cat artifacts/sortcrab-aarch64-unknown-linux-musl/sortcrab-aarch64-unknown-linux-musl.sha256)
+          X86_64_DARWIN_SHA=$(sha256sum artifacts/sortcrab-x86_64-apple-darwin/sortcrab-x86_64-apple-darwin.tar.gz | cut -d' ' -f1)
+          AARCH64_DARWIN_SHA=$(sha256sum artifacts/sortcrab-aarch64-apple-darwin/sortcrab-aarch64-apple-darwin.tar.gz | cut -d' ' -f1)
+          X86_64_LINUX_SHA=$(sha256sum artifacts/sortcrab-x86_64-unknown-linux-musl/sortcrab-x86_64-unknown-linux-musl.tar.gz | cut -d' ' -f1)
+          AARCH64_LINUX_SHA=$(sha256sum artifacts/sortcrab-aarch64-unknown-linux-musl/sortcrab-aarch64-unknown-linux-musl.tar.gz | cut -d' ' -f1)
 
           cat > sortcrab.rb << RUBYEOF
           class Sortcrab < Formula

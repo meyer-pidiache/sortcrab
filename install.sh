@@ -146,12 +146,10 @@ detect_platform() {
 }
 
 ARCHIVE_URL=""
-SHA_URL=""
 
 determine_urls() {
     BASE_URL="https://github.com/${REPO}"
     ARCHIVE_NAME="sortcrab-${TARGET}.tar.gz"
-    SHA_FILE="sortcrab-${TARGET}.sha256"
 
     if [ -z "$VERSION" ] || [ "$VERSION" = "latest" ]; then
         DOWNLOAD_BASE="${BASE_URL}/releases/latest/download"
@@ -161,49 +159,6 @@ determine_urls() {
     fi
 
     ARCHIVE_URL="${DOWNLOAD_BASE}/${ARCHIVE_NAME}"
-    SHA_URL="${DOWNLOAD_BASE}/${SHA_FILE}"
-}
-
-verify_sha256() {
-    echo_info "Verifying SHA-256 checksum..."
-
-    sha_file="${_tmpdir}/${SHA_FILE}"
-
-    if command -v curl >/dev/null 2>&1; then
-        curl -fsSL -o "$sha_file" "$SHA_URL" || die "Failed to download checksum: ${SHA_URL}"
-    elif command -v wget >/dev/null 2>&1; then
-        wget -q -O "$sha_file" "$SHA_URL" || die "Failed to download checksum: ${SHA_URL}"
-    else
-        die "Neither curl nor wget found. Please install curl or wget and try again."
-    fi
-
-    stored_hash=""
-    expected_hash=""
-
-    if command -v sha256sum >/dev/null 2>&1; then
-        stored_hash=$(cut -d' ' -f1 "$sha_file")
-        expected_hash=$(sha256sum "${_tmpdir}/${ARCHIVE_NAME}" | cut -d' ' -f1)
-    elif command -v shasum >/dev/null 2>&1; then
-        stored_hash=$(cut -d' ' -f1 "$sha_file")
-        expected_hash=$(shasum -a 256 "${_tmpdir}/${ARCHIVE_NAME}" | cut -d' ' -f1)
-    else
-        echo_warn "No SHA-256 tool found. Skipping checksum verification."
-        return 0
-    fi
-
-    if [ "$expected_hash" != "$stored_hash" ]; then
-        cat >&2 <<-EOF
-			ERROR: SHA-256 mismatch!
-			  Expected: ${stored_hash}
-			  Got:      ${expected_hash}
-			The download may be corrupted or tampered with.
-			Please retry or download manually from:
-			  https://github.com/${REPO}/releases
-			EOF
-        exit 1
-    fi
-
-    echo_info "Checksum verified"
 }
 
 download_archive() {
@@ -229,7 +184,6 @@ install_binary() {
 
     if [ "$DRY_RUN" = 1 ]; then
         echo_info "[DRY-RUN] Would download: ${ARCHIVE_URL}"
-        echo_info "[DRY-RUN] Would verify SHA-256 checksum"
         echo_info "[DRY-RUN] Would install ${BINARY} to: ${install_dir}/"
         if [ "$MODIFY_PATH" = 1 ]; then
             echo_info "[DRY-RUN] Would add ${install_dir} to PATH in shell config"
@@ -241,8 +195,6 @@ install_binary() {
 
     echo_info "Downloading ${ARCHIVE_NAME}..."
     download_archive
-
-    verify_sha256
 
     echo_info "Extracting archive..."
     tar xf "${_tmpdir}/${ARCHIVE_NAME}" -C "$_tmpdir" || die "Failed to extract archive (corrupted download?)."

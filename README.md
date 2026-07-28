@@ -37,7 +37,7 @@ Flags:
 
 | Flag | Description |
 |------|-------------|
-| `--version <ver>` | Install a specific version (e.g. `--version 1.2.0`) |
+| `--version <ver>` | Install a specific version (e.g. `--version 0.1.7`) |
 | `--dry-run` | Preview what would happen without writing files |
 | `--no-modify-path` | Skip adding `~/.local/bin/` to `PATH` in shell config |
 
